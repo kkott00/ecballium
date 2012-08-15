@@ -249,6 +249,9 @@ class Ecballium
     @logbuf='' 
     $.post('/test',{status:status,data:data})
 
+  assert: (cond,msg)->
+    if not cond
+      throw(msg)
 # I just leave it here
 
 

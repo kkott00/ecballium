@@ -1,6 +1,7 @@
 window.ecb_config =
   modules:[
    'lib.js'
+   'demo.js'
   ]
   features:[
    'demo.feature'    
