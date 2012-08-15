@@ -5,5 +5,5 @@ window.ecb_config =
   features:[
    'demo.feature'    
   ]
-  policy:  'continue'  
-  #policy: 'restart'
+  #policy:  'continue'  
+  policy: 'restart'

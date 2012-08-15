@@ -7,4 +7,10 @@ window.handlers=window.handlers.concat [
    
    @log "find",$.makeArray @found_item
  ]
+
+ [/^Click found item/,
+  ()->
+   @found_item.click()
+ ]
+
 ]
