@@ -4,6 +4,7 @@ window.handlers=window.handlers.concat [
    sels=
      button: 'button'
    @found_item=$("#{sels[el]}:contains(#{text})")
+   @assert @found_item.length!=0,'Element not found'
    
    @log "find",$.makeArray @found_item
  ]

@@ -39,8 +39,11 @@ class Ecballium
     file:0
     scn:0
     step:0
+    outline: 0
   state: 'init'
   logbuf:''
+  skipScnOnError: true
+
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
   constructor:()->
@@ -169,6 +172,12 @@ class Ecballium
       @loc.step+=1
       if @loc.step>=scn.steps.length
         @loc.step=0
+        if 'outline' of scn
+          @loc.outline+=1
+          if @loc.outline>=scn.outline.length
+            @loc.outline=0
+          else
+            @loc.scn-=1 #repeat scenario again
         @loc.scn+=1
         #check if there are another scenarios in file
         file=@loc2file()
@@ -189,8 +198,14 @@ class Ecballium
       @next 'step_ready'
   
   loc2step:()->
-    tmp=@files[ecb_config.features[@loc.file]].scenarios[@loc.scn].steps[@loc.step]
-
+    scn=@loc2scn()
+    tmp=$.extend {},scn.steps[@loc.step]
+    if 'outline' of scn
+      outline=scn.outline[@loc.outline]
+      tmp.desc=tmp.desc.replace /(<[^<>]+>)/,(v)->
+        console.log 'outline replace',outline,v.slice(1,-1)
+        outline[v.slice(1,-1)]
+    tmp
 
   loc2scn:()->
     @files[ecb_config.features[@loc.file]].scenarios[@loc.scn]
@@ -217,6 +232,8 @@ class Ecballium
       console.log(e)
       @last_exception=e
       @post('test failed',e.stack)
+      if @skipScnOnError
+        @loc.step=1e10  #to be sure scenario switch
     @next 'step_done'
   
   log: (msg,obj)->
@@ -238,7 +255,7 @@ class Ecballium
       return out
     value
   
-  post: (status,msg)->
+  post: (status,msg='')->
     if status=='all tests done'
       data=
         msg:msg
@@ -258,8 +275,9 @@ class Ecballium
     @logbuf='' 
     $.post('/test',{status:status,data:data})
 
-  assert: (cond,msg)->
+  assert: (cond,msg='',skip=true)->
     if not cond
+      @skipScnOnError=skip
       throw(msg)
 # I just leave it here
 
