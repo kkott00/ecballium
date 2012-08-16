@@ -10,7 +10,7 @@ Scenario: Press several same buttons
   Click found item
   Check if there is caption "<out>"
   
-  Example:
+  Examples:
   | button   | out                | 
   | Button 1 | Button 1 pressed   |
   | Button 2 | Button 2 pressed   |
