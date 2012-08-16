@@ -15,3 +15,17 @@ Scenario: Press several same buttons
   | Button 1 | Button 1 pressed   |
   | Button 2 | Button 2 pressed   |
   | Button 3 | Button 3 pressed   |
+
+Scenario: Clean up
+  Find link with text "Reset"
+  Click found item
+
+Scenario: Failed checks
+  Find button with text "Big Button"
+  Click found item
+  Check if there is caption "Big Button clicked"
+  Find button with text "Button 1"
+  Click found item
+  Fail if there is caption "Button 1 clicked"
+  Find button with text "Button 2"
+  Click found item
