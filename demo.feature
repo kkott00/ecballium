@@ -1,6 +1,7 @@
 Feature: Demo
 
 Scenario: Press button
+  Highlight "button" and say "I can highlight any elements just like this buttons"
   Find button with text "Big Button"
   Click found item
   Check if there is caption "Big Button pressed"
@@ -29,3 +30,6 @@ Scenario: Failed checks
   Fail if there is caption "Button 1 clicked"
   Find button with text "Button 2"
   Click found item
+
+Scenario: Animation, guides and screncasts
+  Highlight "button" and say "I can highlight any elements just like these buttons"

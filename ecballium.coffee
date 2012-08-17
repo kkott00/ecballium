@@ -30,7 +30,7 @@ window.load=(src,args)->
    script.onload= helper
    d.promise()
 
-wait=(delay)->
+window.wait=(delay)->
   d=$.Deferred()
   cb=()=>
     d.resolve()
@@ -66,6 +66,17 @@ class Ecballium
       for i in ecb_config.modules
         load "#{URL}#{i}"
     @mouse=new EcballiumMouse()
+    @overlay=$('<div>')
+    @overlay.css
+      'z-index':1000
+      'background-color':'rgba(0,0,0,0.8)'
+      'position':'absolute'
+      'top':0
+      'left':0
+      'width':'10000px'
+      'height':'10000px'
+    $('body').append(@overlay)
+    @overlay.hide()
     @next('init')
   
   next: (state)->
@@ -239,7 +250,7 @@ class Ecballium
       @post('test error',"not found step")
       return 
     try
-      i[1].apply @,m[1..]
+      d=i[1].apply @,m[1..]
       @post('success','success')
     catch e
       console.log 'exception',e
@@ -247,7 +258,11 @@ class Ecballium
       @post('test failed',e.stack)
       if @skipScnOnError
         @loc.step=1e10  #to be sure scenario switch
-    @next 'step_done'
+    if d and ('promise' of d)
+        d.then ()=>
+          @next 'step_done'
+    else
+      @next 'step_done'
   
   log: (msg,obj)->
     @logbuf+="#{new Date()} #{msg}\n"
@@ -312,17 +327,42 @@ class EcballiumMouse
      left:@x
      'z-index':9000
      'background-color':'rgba(200,200,255,0.5)'
-     width: '50px'
-     height: '50px'
+     #'min-width': '50px'
+     'min-height': '50px'
+     #'width': '50px'
+     'height': '50px'
      'background-image':"url(#{URL}/mouse.png)"
+     'background-repeat': "no-repeat"
+     padding:'10px 10px 10px 50px'
     $('body').append(@el)
+    @text=$('<div>')
+    @text.css
+      'background-color':'rgba(200,200,255,1)'
+      padding:'10px'
+
   moveto:(x,y)->
+    d=$.Deferred()
     @x=x-25
     @y=y-25
-    @el.animate {top:@y,left:@x},100
+    @el.animate {top:@y,left:@x},100,()=>d.resolve()
+    d
   movetoobj:(obj)->
     toff = obj.offset()
-    @moveto toff.left+obj.width()/2,toff.top+obj.height()/2
+    #@moveto toff.left+obj.width()/2,toff.top+obj.height()/2
+    @moveto toff.left+50,toff.top+obj.height()/2
+  click:()->
+    @el.css 
+      'background-color':'rgba(255,50,50,0.5)'
+    wait(200).done ()=>
+      @el.css 
+        'background-color':'rgba(200,200,255,0.5)'
+  say:(say)->
+    @text.html(say)
+    @el.append(@text)
+    pause=500+say.length
+    wait(pause).done ()=>
+      @text.detach()
+
 
     
 # I just leave it here
