@@ -37,10 +37,10 @@ wait=(delay)->
   setTimeout cb,delay
   d.promise()
 
+URL='static/test/'
+
 
 class Ecballium
-
-  URL:'static/test/'
   files:{}
   persist:{}
   loc:
@@ -52,6 +52,7 @@ class Ecballium
   logbuf:''
   skipScnOnError: true
   aliases: ecb.aliases
+  animate:false
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
@@ -60,11 +61,11 @@ class Ecballium
       e.stopPropagation()
       @state_machine (state)
     #load modules
-    load("#{@URL}config.js")
+    load("#{URL}config.js")
     .done ()=>
       for i in ecb_config.modules
-        load "#{@URL}#{i}"
-
+        load "#{URL}#{i}"
+    @mouse=new EcballiumMouse()
     @next('init')
   
   next: (state)->
@@ -110,7 +111,7 @@ class Ecballium
   get_file: (file)->
     d=$.Deferred()
     if file not of @files
-      $.get("#{@URL}#{file}")
+      $.get("#{URL}#{file}")
       .done (data)=>
         @files[file]={'scenarios':[]}
         current_scenario=null;
@@ -230,7 +231,7 @@ class Ecballium
     console.log 'run_step'
     step=@loc2step()
     for i in ecb.handlers
-      console.log 'handler',i
+      #console.log 'handler',i
       m=step.desc.match i[0]
       if m 
         break
@@ -300,7 +301,30 @@ class Ecballium
       throw Error(msg)
 
 
+class EcballiumMouse
+  x:300
+  y:300
+  constructor:()->
+    @el=$ '<div>'
+    @el.css
+     position:'absolute'
+     top:@y
+     left:@x
+     'z-index':9000
+     'background-color':'rgba(200,200,255,0.5)'
+     width: '50px'
+     height: '50px'
+     'background-image':"url(#{URL}/mouse.png)"
+    $('body').append(@el)
+  moveto:(x,y)->
+    @x=x-25
+    @y=y-25
+    @el.animate {top:@y,left:@x},100
+  movetoobj:(obj)->
+    toff = obj.offset()
+    @moveto toff.left+obj.width()/2,toff.top+obj.height()/2
 
+    
 # I just leave it here
 
 `
