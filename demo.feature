@@ -1,15 +1,20 @@
 Feature: Demo
 
 Scenario: Press button
-  Highlight "button" and say "I can highlight any elements just like this buttons"
+  Highlight "first paragraph" and say "Test is about to start"
   Find button with text "Big Button"
+  Say "Lets press this button"
   Click found item
+  Say "Wow, It works"
   Check if there is caption "Big Button pressed"
+  Say "It looks like caption we want is here"
+  Say "I want to do it again for all buttons here"
 
 Scenario: Press several same buttons
   Find button with text "<button>"
   Click found item
   Check if there is caption "<out>"
+  Say "And again..."
   
   Examples:
   | button   | out                | 
@@ -22,6 +27,7 @@ Scenario: Clean up
   Click found item
 
 Scenario: Failed checks
+  Say "But what happens if something is wrong?"
   Find button with text "Big Button"
   Click found item
   Check if there is caption "Big Button clicked"
@@ -32,4 +38,5 @@ Scenario: Failed checks
   Click found item
 
 Scenario: Animation, guides and screncasts
+  Say "I want to show something to user"
   Highlight "button" and say "I can highlight any elements just like these buttons"

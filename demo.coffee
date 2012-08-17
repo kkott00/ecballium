@@ -17,3 +17,4 @@ window.ecb.handlers=window.ecb.handlers.concat [
 
 window.ecb.aliases.extend 
   caption: 'p.caption'
+  'first paragraph':'div.desc'

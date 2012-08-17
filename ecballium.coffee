@@ -38,7 +38,7 @@ window.wait=(delay)->
   d.promise()
 
 URL='static/test/'
-
+DELAY=5000
 
 class Ecballium
   files:{}
@@ -53,6 +53,7 @@ class Ecballium
   skipScnOnError: true
   aliases: ecb.aliases
   animate:false
+  DELAY:DELAY
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
@@ -122,7 +123,7 @@ class Ecballium
   get_file: (file)->
     d=$.Deferred()
     if file not of @files
-      $.get("#{URL}#{file}")
+      $.get("#{URL}#{file}",null,null,'text')
       .done (data)=>
         @files[file]={'scenarios':[]}
         current_scenario=null;
@@ -254,6 +255,9 @@ class Ecballium
       @post('success','success')
     catch e
       console.log 'exception',e
+      @show_message(e.stack,true)
+      d=wait(500).done ()=>
+        @hide_message()
       @last_exception=e
       @post('test failed',e.stack)
       if @skipScnOnError
@@ -359,7 +363,7 @@ class EcballiumMouse
   say:(say)->
     @text.html(say)
     @el.append(@text)
-    pause=500+say.length
+    pause=DELAY+say.length
     wait(pause).done ()=>
       @text.detach()
 

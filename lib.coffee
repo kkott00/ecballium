@@ -15,7 +15,7 @@ window.ecb.handlers=window.ecb.handlers.concat [
     @mouse.click()
  ]
 
- [/^Show found item and say "([^"]+)"/,
+ [/^Say "([^"]+)"/,
   (say)->
     @mouse.say(say)
  ]
@@ -47,7 +47,7 @@ window.ecb.handlers=window.ecb.handlers.concat [
     item.css 
       'z-index':1001
       'position':'relative'
-    wait(1000+comment.length).done ()=>
+    wait(@DELAY+comment.length).done ()=>
     	@overlay.hide()
 	    item.css 
 	      'z-index':old_z
