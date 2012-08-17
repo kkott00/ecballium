@@ -29,30 +29,14 @@ window.ecb.handlers=window.ecb.handlers.concat [
  [/^Highlight "([^"]+)" and say "([^"]+)"/,
   (alias,comment)->
     item=$("#{@aliases[alias]}")
-    old_z=item.css 'z-index'
-    old_p=item.css 'position'
-    item_pos=item.first().offset()
-    caption=$("<div>#{comment}</div>")
-    $('body').append(caption)
-    caption.css
-      'z-index':1001
-      'position':'absolute'
-      'background-color':'white'
-      'padding':'20px'
-    caption.css
-      'top':item_pos.top-caption.outerHeight()
-      'left':item_pos.left
-
-    @overlay.show()
-    item.css 
+    old=@dump_css item,
       'z-index':1001
       'position':'relative'
-    wait(@DELAY+comment.length).done ()=>
-    	@overlay.hide()
-	    item.css 
-	      'z-index':old_z
-	      'position':old_p
-	    caption.remove()
+      'background-color':'white'
+    item_pos=item.first().offset()
+    d=@show_message item_pos.left,item_pos.top,comment
+    d.done ()=>
+	    item.css old
  ]
 
 

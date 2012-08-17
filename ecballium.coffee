@@ -255,9 +255,7 @@ class Ecballium
       @post('success','success')
     catch e
       console.log 'exception',e
-      @show_message(e.stack,true)
-      d=wait(500).done ()=>
-        @hide_message()
+      d=@show_message(200,200,e.stack,'rgba(255,0,0,0.5)')
       @last_exception=e
       @post('test failed',e.stack)
       if @skipScnOnError
@@ -318,6 +316,36 @@ class Ecballium
     @skipScnOnError=true
     if not cond
       throw Error(msg)
+
+  dump_css: (obj,v)->
+    out={}
+    for i of v
+      out[i] = obj.css i
+      obj.css i,v[i]
+    out
+
+  show_message: (x,y,msg,color='rbga(0,0,0,0.5)')->
+    x?=200
+    y?=200
+    old=@dump_css @overlay,'background-color':color
+    @overlay.show()
+    caption=$("<div>#{msg}</div>")
+    $('body').append(caption)
+    
+    caption.css
+      'z-index':1001
+      'position':'absolute'
+      'background-color':'white'
+      'padding':'20px'
+    y-=caption.outerHeight()
+    caption.css
+      'top':y
+      'left':x
+    wait(DELAY).done ()=>
+      @overlay.hide()
+      @overlay.css old
+      caption.remove()
+
 
 
 class EcballiumMouse

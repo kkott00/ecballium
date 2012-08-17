@@ -40,3 +40,6 @@ Scenario: Failed checks
 Scenario: Animation, guides and screncasts
   Say "I want to show something to user"
   Highlight "button" and say "I can highlight any elements just like these buttons"
+
+Scenario: Bye-bye
+  Say "It is all..."
