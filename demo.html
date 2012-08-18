@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Ecballium by kkott00</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <script src="static/test/ecballium.js"></script>
+    <script>
+      $(function(){
+        $('button').click(function(){
+          console.log('click');
+          var s=$(this);
+          s.after('<p class="caption">'+s.text()+' pressed</p>');
+        })
+        $('a.reset').click(function(){
+          $('p.caption').remove()
+        })
+      })
+    </script>
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Ecballium</h1>
+        <p>Fully client-side BDD framework</p>
+
+        <p class="view"><a href="https://github.com/kkott00/ecballium">View the Project on GitHub <small>kkott00/ecballium</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/kkott00/ecballium/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/kkott00/ecballium/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/kkott00/ecballium">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h3>Welcome to GitHub Pages.</h3>
+
+        <h3>Demo page</h3>
+        <div class='desc'>
+          Let's pretend that we have page with several buttons and links. Buttons add captions at their tail on pressing.
+          Link 'Reset' cleans up all added captions. 
+        </div>
+        <div>
+          <a href="#" class="reset">Reset</a>
+        </div>
+        <div>
+          <button>Big Button</button>
+        </div>
+        <div>
+          <button>Button 1</button>
+        </div>
+        <div>
+          <button>Button 2</button>
+        </div>
+        <div>
+          <button>Button 3</button>
+        </div>
+</section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/kkott00">kkott00</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
