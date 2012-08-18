@@ -1,20 +1,20 @@
-window.ecb.handlers=window.ecb.handlers.concat [
- [/^Check if there is caption "([^"]+)"/,
-  (out)->
-   f=$("p.caption:contains(#{out})")
+ecballium.register_handlers [
+ [/^Check if (.+) has text "([^"]+)"/,
+  (alias,out)->
+   f=$("#{@aliases[alias]}:contains(#{out})")
    console.log(f.length)
    @assert(f.length==1,'No such caption')
    @mouse.movetoobj f.first()
  ]
- [/^Fail if there is caption "([^"]+)"/,
-  (out)->
-   f=$("p.caption:contains(#{out})")
+ [/^Fail if (.+) has text "([^"]+)"/,
+  (alias,out)->
+   f=$("#{@aliases[alias]}:contains(#{out})")
    console.log(f.length)
    @fail(f.length==1,'No such caption')
    @mouse.movetoobj f.first()
  ]
 ]
 
-window.ecb.aliases.extend 
+ecballium.register_aliases
   caption: 'p.caption'
   'first paragraph':'div.desc'

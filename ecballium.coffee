@@ -5,10 +5,11 @@
 
 
 window.imports={}
+###
 window.ecb=
   handlers:[]
   aliases:$({})
-
+###
 window.load=(src,args)->
    d=$.Deferred()
    helper=()->
@@ -51,7 +52,8 @@ class Ecballium
   state: 'init'
   logbuf:''
   skipScnOnError: true
-  aliases: ecb.aliases
+  aliases: {}
+  handlers:[]
   animate:false
   DELAY:DELAY
 
@@ -86,7 +88,7 @@ class Ecballium
 
 
   state_machine: (state)->
-    console.log 'state machine',state
+    #console.log 'state machine',state
     if state=='init'
       #wait for modules loading
       wait(200)
@@ -155,13 +157,13 @@ class Ecballium
             current_step['data']=''
             continue
 
-          console.log 'current step',current_step,@files[file]
+          #console.log 'current step',current_step,@files[file]
           if current_step
             if current_step.desc=='Examples:'
               curfile['scenarios'].slice(-1)[0].outline=[]
               outline=current_step.data
               for k in outline[1..]
-                console.log 'outline parse',k,outline
+                #console.log 'outline parse',k,outline
                 od={}
                 for l,ln in outline[0]
                   od[l]=k[ln]
@@ -228,7 +230,7 @@ class Ecballium
     if 'outline' of scn
       outline=scn.outline[@loc.outline]
       tmp.desc=tmp.desc.replace /(<[^<>]+>)/,(v)->
-        console.log 'outline replace',outline,v.slice(1,-1)
+        #console.log 'outline replace',outline,v.slice(1,-1)
         outline[v.slice(1,-1)]
     tmp
 
@@ -240,9 +242,9 @@ class Ecballium
 
   
   run_step:()->
-    console.log 'run_step'
+    #console.log 'run_step'
     step=@loc2step()
-    for i in ecb.handlers
+    for i in @handlers
       #console.log 'handler',i
       m=step.desc.match i[0]
       if m 
@@ -254,8 +256,8 @@ class Ecballium
       d=i[1].apply @,m[1..]
       @post('success','success')
     catch e
-      console.log 'exception',e
-      d=@show_message(200,200,e.stack,'rgba(255,0,0,0.5)')
+      #console.log 'exception',e
+      d=@show_message(@mouse.x,@mouse.y,e.stack,'rgba(255,0,0,0.5)')
       @last_exception=e
       @post('test failed',e.stack)
       if @skipScnOnError
@@ -273,7 +275,7 @@ class Ecballium
     
     
   replacer: (key,value)->
-    console.log 'replacer',key,value,$.type value
+    #console.log 'replacer',key,value,$.type value
     out=value
     if (value==window)
       out = '[window]'
@@ -284,7 +286,7 @@ class Ecballium
       out=
         tag:v[0].tagName
         attrs: [i.name,i.value] for i in v[0].attributes
-    console.log 'replacer out',out
+    #console.log 'replacer out',out
     out
   
   post: (status,msg='')->
@@ -306,6 +308,7 @@ class Ecballium
         navigator:@navigator
     @logbuf='' 
     $.post('/test',{status:status,data:data})
+    console.log '===',status,' = ',data.step,data
 
   assert: (cond,msg='')->
     @skipScnOnError=false
@@ -345,6 +348,13 @@ class Ecballium
       @overlay.hide()
       @overlay.css old
       caption.remove()
+
+  register_handlers: (hs)->
+    console.log 'reg hnld',hs
+    @handlers=@handlers.concat hs
+
+  register_aliases: (as)->
+    $.extend @aliases,as 
 
 
 

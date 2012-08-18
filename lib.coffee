@@ -1,5 +1,5 @@
-window.ecb.handlers=window.ecb.handlers.concat [
- [/^Find (\w+) with text "([^"]+)"/,
+ecballium.register_handlers [
+ [/^Find (.+) with text "([^"]+)"/,
   (el,text)->
    @found_item=$("#{@aliases[el]}:contains(#{text})").first()
    @assert @found_item.length!=0,'Element not found'
@@ -26,7 +26,7 @@ window.ecb.handlers=window.ecb.handlers.concat [
     @mouse.enable(@animation)
  ]
 
- [/^Highlight "([^"]+)" and say "([^"]+)"/,
+ [/^Highlight (.+) and say "([^"]+)"/,
   (alias,comment)->
     item=$("#{@aliases[alias]}")
     old=@dump_css item,
@@ -42,6 +42,6 @@ window.ecb.handlers=window.ecb.handlers.concat [
 
 ]
 
-window.ecb.aliases.extend 
+ecballium.register_aliases 
   button: 'button'
   link: 'a'
