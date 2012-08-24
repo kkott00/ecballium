@@ -3,12 +3,11 @@
 body {
   padding:50px;
   font:14px/1.5 Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-  color:#777;
-  font-weight:300;
+  color:#000;
 }
 
 h1, h2, h3, h4, h5, h6 {
-  color:#222;
+  color:#000;
   margin:0 0 20px;
 }
 
@@ -58,7 +57,6 @@ blockquote {
 }
 
 code, pre {
-  font-family:Monaco, Bitstream Vera Sans Mono, Lucida Console, Terminal;
   color:#333;
   font-size:12px;
 }
@@ -180,7 +178,7 @@ footer {
   width:270px;
   float:left;
   position:fixed;
-  bottom:50px;
+  bottom:20px;
 }
 
 @media print, screen and (max-width: 960px) {

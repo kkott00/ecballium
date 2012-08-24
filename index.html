@@ -11,24 +11,20 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+    
+    <script>
+      $(function(){
+        $('header').load('header.html')
+      })
+    </script>
   </head>
   <body>
     <div class="wrapper">
       <header>
-        <h1>Ecballium</h1>
-        <p>Fully client-side BDD framework</p>
-
-        <p class="view"><a href="https://github.com/kkott00/ecballium">View the Project on GitHub <small>kkott00/ecballium</small></a></p>
-
-
-        <ul>
-          <li><a href="https://github.com/kkott00/ecballium/zipball/master">Download <strong>ZIP File</strong></a></li>
-          <li><a href="https://github.com/kkott00/ecballium/tarball/master">Download <strong>TAR Ball</strong></a></li>
-          <li><a href="https://github.com/kkott00/ecballium">View On <strong>GitHub</strong></a></li>
-        </ul>
       </header>
       <section>
-        <h3>Welcome to GitHub Pages.</h3>
+        <h3>Getting started</h3>
 
 <p>
   Let's pretend simple situation:<br>
@@ -55,15 +51,21 @@ Scenario: Press button
 </p>
 
 <pre><code>#demo.coffee
+
+# Pairs RegExp-Function to bind steps in .feature file to 
+# actual handler
 ecballium.register_handlers [
- [/^Check if there is (\w+) has text "([^"]+)"/,
-  (alias,out)->
-   f=$("#{}:contains(#{out})")
-   @assert(f.length==1,'No such caption')
- ]
- 
+  [ 
+    /^Check if there is (\w+) has text "([^"]+)"/,
+    (alias,out)->
+      #Actual code                                   
+      f = $("#{alias}:contains(#{out})")
+      #Checking process                    
+      @assert( f.length==1, 'No such caption' )         
+  ]
 ]
 
+#Some translation for human readable to jquery selectors
 ecballium.register_aliases
   caption: 'p.caption'
   'first paragraph':'div.desc'
@@ -75,7 +77,7 @@ ecballium.register_aliases
 </p>
 
 <p>
-  <a href="demo">Here</a> you can see some extended demo how it works.
+  <a href="demo.html">Here</a> you can see some extended demo how it works.
 </p>
 </section>
       <footer>
