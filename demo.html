@@ -24,6 +24,10 @@
         $('a.reset').click(function(){
           $('p.caption').remove()
         })
+        $.get('static/test/demo.feature').done(function(data){
+          $('code').text(data)
+        })
+        
       })
     </script>
   </head>
@@ -53,6 +57,10 @@
         <div>
           <button>Button 3</button>
         </div>
+
+<pre><code>
+</code></pre>
+
 </section>
       <footer>
         <p>This project is maintained by <a href="https://github.com/kkott00">kkott00</a></p>
