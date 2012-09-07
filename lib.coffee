@@ -40,8 +40,35 @@ ecballium.register_handlers [
  ]
 
 
+ [/^(Check|Fail) if (.+) (don\'t have|doesn\'t'have|have|has) (.+) "([^"]+)"/,
+  /^(Проверить|Остановиться) если (.+) (имеет|не имеет) (.+) "([^"]+)"/,
+  (action,el,cond,sel,val)->
+   if sel=='text'
+     f=$("#{@A el}:contains(#{val})")
+     res=(f.length==1)
+   else
+     f=$("#{@A el}").first()
+     res=(f.css()==val)
+   console.log(f.length)
+   if (@A cond)=="don't have"
+     res=not res
+   assertion="check for #{@A cond} failed for #{el} with value #{val}"
+   if (@A action)=='checking'
+     @assert(res,assertion)
+   else
+     @fail(res,assertion)
+   @mouse.movetoobj f.first()
+ ]
+
 ]
 
 ecballium.register_aliases 
+  'has':'have'
+  "doesn't have":"don't have"
+  'имеет':'have'
+  'не имеет':"don't have"
+  'Проверить':'Check'
+  'Остановиться':'Fail'
+
   button: 'button'
   link: 'a'

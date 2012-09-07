@@ -246,14 +246,17 @@ class Ecballium
     step=@loc2step()
     for i in @handlers
       #console.log 'handler',i
-      m=step.desc.match i[0]
+      for j in i.slice(0,-1)
+      	m=step.desc.match i[0]
+      	if m
+      	  break
       if m 
         break
     if not m
       @post('test error',"not found step")
       return 
     try
-      d=i[1].apply @,m[1..]
+      d=i.slice(-1)[0].apply @,m[1..]
       @post('success','success')
     catch e
       #console.log 'exception',e
@@ -355,7 +358,9 @@ class Ecballium
 
   register_aliases: (as)->
     $.extend @aliases,as 
-
+  
+  A: (al)->
+  	out = if al of @aliases then @aliases[al] else al
 
 
 class EcballiumMouse
