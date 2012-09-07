@@ -33,7 +33,7 @@
 </p>
 <p>
   This is the way we like to resolve such situations:<br>
-  First of all we create test description using simplified <a href='http://lettuce.it'>Gherkin</a> language.
+  <b>First step</b> Create test description using simplified <a href='http://lettuce.it'>Gherkin</a> language.
 </p>
 
 <pre><code>#demo.feature
@@ -46,38 +46,20 @@ Scenario: Press button
 </code></pre>
 
 <p>
-  Next make code description of steps which is not described in framework library.
-  You can use <a href="http://coffeescript.org/">CoffeeScript</a> or Javascript for this.
+  <b>Second step</b> We just deploy files demo.feature, ecballium.js and config.js as static files (for example in folder <u>test</u>).
+  Also we need add script <u>ecballium.js</u> to head of pages for testing (for example to base template).
 </p>
 
-<pre><code>#demo.coffee
-
-# Pairs RegExp-Function to bind steps in .feature file to 
-# actual handler
-ecballium.register_handlers [
-  [ 
-    /^Check if there is (\w+) has text "([^"]+)"/,
-    (alias,out)->
-      #Actual code                                   
-      f = $("#{alias}:contains(#{out})")
-      #Checking process                    
-      @assert( f.length==1, 'No such caption' )         
-  ]
-]
-
-#Some translation for human readable to jquery selectors
-ecballium.register_aliases
-  caption: 'p.caption'
-  'first paragraph':'div.desc'
+<pre><code> &lt;!-- Jinja example--&gt;
+ {% if config.TEST %}
+  &lt;script src="test/ecballium.js"&gt;&lt;/script&gt;
+ {% endif %}
 </code></pre>
-
 <p>
-  Finally we just copy files demo.feature and demo.coffee as static files to folder <u>static/test</u> and open page in browser you like to test.
-  You got test results as series or POST requests to URL <u>test</u>. The only server-side code you need is handler for URL <u>test</u> which will collect test results. Also you can see test result in debug console.
-</p>
-
-<p>
+  <b>Finally</b> Open page in browser you like to test.<br>
   <a href="demo.html">Here</a> you can see some extended demo how it works.
+    You get test results as series or POST requests to URL <u>test</u>. The only server-side code you need is handler for URL <u>test</u> which will collect test results. Also you can see test result in debug console.
+
 </p>
 </section>
       <footer>
