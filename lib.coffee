@@ -1,59 +1,68 @@
 ecballium.register_handlers [
- [/^Find (.+) with text "([^"]+)"/,
+ [/^Find (.*) "([^"]*)"/,
+  /^Найти (.*) "([^"]*)"/
   (el,text)->
-   @found_item=$("#{@aliases[el]}:contains(#{text})").first()
-   @assert @found_item.length!=0,'Element not found'
+    sel=@A el
+    if sel.apply
+      @found_item=sel.apply @,text
+    else
+      if text==''
+        @found_item=$("#{sel}")
+      else
+        @found_item=$("#{sel}:contains(#{text})")
+    @assert @found_item.length!=0,'Element not found'
    
-   @log "find",$.makeArray @found_item
-   @mouse.movetoobj @found_item
+    @log "find",$.makeArray @found_item
+    @mouse.movetoobj @found_item.first()
    
  ]
 
  [/^Click found item/,
+  /^Кликнуть на найденом/,
   ()->
     @found_item.click()
     @mouse.click()
  ]
 
  [/^Say "([^"]+)"/,
+  /^Комментарий "([^"]+)"/,
   (say)->
     @mouse.say(say)
  ]
 
  [/^(\w+) animation/,
+  /^(\w+) анимацию/,
   (state)->
     @animation = if state=="Enable" then true else false
     @mouse.enable(@animation)
  ]
 
- [/^Highlight (.+) and say "([^"]+)"/,
-  (alias,comment)->
-    item=$("#{@aliases[alias]}")
+ [/^Highlight and say "([^"]+)"/,
+  /^Выделить и добавить комментарий "([^"]+)"/,
+  (comment)->
+    item=@found_item
     old=@dump_css item,
-      'z-index':1001
+      'z-index':10001
       'position':'relative'
       'background-color':'white'
     item_pos=item.first().offset()
-    d=@show_message item_pos.left,item_pos.top,comment
+    d=@show_message item_pos.left,item_pos.top+item.outerHeight()+5,comment
     d.done ()=>
 	    item.css old
  ]
 
 
- [/^(Check|Fail) if (.+) (don\'t have|doesn\'t'have|have|has) (.+) "([^"]+)"/,
-  /^(Проверить|Остановиться) если (.+) (имеет|не имеет) (.+) "([^"]+)"/,
-  (action,el,cond,sel,val)->
+ [/^(Check|Fail) if (.+) (are|is|aren\'t|isn\'t) (.+)/,
+  /^(Проверить|Остановиться) если (.+) (-|не) (.+)/,
+  (action,sel,cond,val)->
    if sel=='text'
-     f=$("#{@A el}:contains(#{val})")
-     res=(f.length==1)
+     res=(@found_item.text()==val)
    else
-     f=$("#{@A el}").first()
-     res=(f.css()==val)
-   console.log(f.length)
-   if (@A cond)=="don't have"
+     res=(@found_item.css(@A el)==val)
+   if (@A cond)=="isn't"
      res=not res
-   assertion="check for #{@A cond} failed for #{el} with value #{val}"
-   if (@A action)=='checking'
+   assertion="check for for #{sel} with value #{val}"
+   if (@A action)=='Check'
      @assert(res,assertion)
    else
      @fail(res,assertion)
@@ -70,5 +79,14 @@ ecballium.register_aliases
   'Проверить':'Check'
   'Остановиться':'Fail'
 
-  button: 'button'
-  link: 'a'
+  'button': 'button'
+  'link': 'a'
+  "ссылку":'link'
+  "кнопку":'button'
+  "anything with text": ''
+  "все с текстом": ''
+
+  "are":'is'
+  "aren't":"isn't"
+  '-':'is'
+  'не':"isn't"

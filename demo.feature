@@ -1,19 +1,20 @@
 Feature: Demo
 
 Scenario: Press button
-  Highlight first paragraph and say "Test is about to start"
-  Find button with text "Big Button"
+  Find h3 "Demo page"
+  Highlight and say "Test is about to start"
+  Find button "Big Button"
   Say "Lets press this button"
   Click found item
   Say "Wow, It works"
-  Check if caption has text "Big Button pressed"
+  Find caption "Big Button pressed"
   Say "It looks like caption we want is here"
   Say "I want to do it again for all buttons here"
 
 Scenario: Press several same buttons
-  Find button with text "<button>"
+  Find button "<button>"
   Click found item
-  Check if caption has text "<out>"
+  Find caption "<out>"
   Say "And again..."
   
   Examples:
@@ -23,23 +24,24 @@ Scenario: Press several same buttons
   | Button 3 | Button 3 pressed   |
 
 Scenario: Clean up
-  Find link with text "Reset"
+  Find link "Reset"
   Click found item
 
 Scenario: Failed checks
   Say "But what happens if something is wrong?"
-  Find button with text "Big Button"
+  Find button "Big Button"
   Click found item
-  Check if caption has text "Big Button clicked"
-  Find button with text "Button 1"
+  Check if text is "Big Button clicked"
+  Find button "Button 1"
   Click found item
-  Fail if caption has text "Button 1 clicked"
-  Find button with text "Button 2"
+  Fail if text is "Button 1 clicked"
+  Find button "Button 2"
   Click found item
 
 Scenario: Animation, guides and screncasts
   Say "I want to show something to user"
-  Highlight button and say "I can highlight any elements just like these buttons"
+  Find button ""
+  Highlight and say "I can highlight any elements just like these buttons"
 
 Scenario: Bye-bye
   Say "It is all...Thank you"

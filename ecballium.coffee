@@ -39,7 +39,6 @@ window.wait=(delay)->
   d.promise()
 
 URL='static/test/'
-DELAY=5000
 
 class Ecballium
   files:{}
@@ -55,7 +54,7 @@ class Ecballium
   aliases: {}
   handlers:[]
   animate:false
-  DELAY:DELAY
+  @DELAY:5000
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
@@ -68,19 +67,20 @@ class Ecballium
     .done ()=>
       for i in ecb_config.modules
         load "#{URL}#{i}"
-    @mouse=new EcballiumMouse()
-    @overlay=$('<div>')
-    @overlay.css
-      'z-index':1000
-      'background-color':'rgba(0,0,0,0.8)'
-      'position':'absolute'
-      'top':0
-      'left':0
-      'width':'10000px'
-      'height':'10000px'
-    $('body').append(@overlay)
-    @overlay.hide()
-    @next('init')
+      @DELAY=ecb_config.DELAY
+      @mouse=new EcballiumMouse()
+      @overlay=$('<div>')
+      @overlay.css
+        'z-index':1000
+        'background-color':'rgba(0,0,0,0.8)'
+        'position':'absolute'
+        'top':0
+        'left':0
+        'width':'10000px'
+        'height':'10000px'
+      $('body').append(@overlay)
+      @overlay.hide()
+      @next('init')
   
   next: (state)->
     @state=state
@@ -247,7 +247,8 @@ class Ecballium
     for i in @handlers
       #console.log 'handler',i
       for j in i.slice(0,-1)
-      	m=step.desc.match i[0]
+      	#console.log 'handler_re',j,step.desc
+      	m=step.desc.match j
       	if m
       	  break
       if m 
@@ -260,7 +261,7 @@ class Ecballium
       @post('success','success')
     catch e
       #console.log 'exception',e
-      d=@show_message(@mouse.x,@mouse.y,e.stack,'rgba(255,0,0,0.5)')
+      d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
       @last_exception=e
       @post('test failed',e.stack)
       if @skipScnOnError
@@ -309,8 +310,9 @@ class Ecballium
         log: @logbuf
         id: @persist.id
         navigator:@navigator
+
     @logbuf='' 
-    $.post('/test',{status:status,data:data})
+    $.post('/test',{status:status,data:JSON.stringify data,null,1})
     console.log '===',status,' = ',data.step,data
 
   assert: (cond,msg='')->
@@ -339,15 +341,15 @@ class Ecballium
     $('body').append(caption)
     
     caption.css
-      'z-index':1001
+      'z-index':10001
       'position':'absolute'
       'background-color':'white'
       'padding':'20px'
-    y-=caption.outerHeight()
+    #y-=caption.outerHeight()
     caption.css
       'top':y
       'left':x
-    wait(DELAY).done ()=>
+    wait(@DELAY).done ()=>
       @overlay.hide()
       @overlay.css old
       caption.remove()
@@ -360,12 +362,19 @@ class Ecballium
     $.extend @aliases,as 
   
   A: (al)->
+  	m=al.match /^"(.*)"$/
+  	if m
+  	  return m[1]
   	out = if al of @aliases then @aliases[al] else al
-
+  
+  S: (al)->
+  	out = @A al
+  	out = if 'apply' of out then out.apply @ else out
 
 class EcballiumMouse
   x:300
   y:300
+  @DELAY:5000
   constructor:()->
     @el=$ '<div>'
     @el.css
@@ -386,6 +395,7 @@ class EcballiumMouse
     @text.css
       'background-color':'rgba(200,200,255,1)'
       padding:'10px'
+    @DELAY=ecb_config.DELAY
 
   moveto:(x,y)->
     d=$.Deferred()
@@ -406,7 +416,7 @@ class EcballiumMouse
   say:(say)->
     @text.html(say)
     @el.append(@text)
-    pause=DELAY+say.length
+    pause=@DELAY+say.length
     wait(pause).done ()=>
       @text.detach()
 
