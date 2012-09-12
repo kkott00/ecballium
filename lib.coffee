@@ -4,12 +4,13 @@ ecballium.register_handlers [
   (el,text)->
     sel=@A el
     if sel.apply
-      @found_item=sel.apply @,text
+      @found_item=sel.apply @,[text]
     else
       if text==''
-        @found_item=$("#{sel}")
+        @found_item=@root.find("#{sel}")
       else
-        @found_item=$("#{sel}:contains(#{text})")
+        @found_item=@root.find("#{sel}:contains(#{text})")
+    
     @assert @found_item.length!=0,'Element not found'
    
     @log "find",$.makeArray @found_item
@@ -20,8 +21,7 @@ ecballium.register_handlers [
  [/^Click found item/,
   /^Кликнуть на найденом/,
   ()->
-    @found_item.click()
-    @mouse.click()
+    @mouse.trueClick(@found_item)
  ]
 
  [/^Say "([^"]+)"/,
@@ -41,6 +41,7 @@ ecballium.register_handlers [
   /^Выделить и добавить комментарий "([^"]+)"/,
   (comment)->
     item=@found_item
+    console.log 'highlight',item.is(':visible')
     old=@dump_css item,
       'z-index':10001
       'position':'relative'
@@ -68,6 +69,17 @@ ecballium.register_handlers [
      @fail(res,assertion)
    @mouse.movetoobj f.first()
  ]
+ 
+ [ /^Swith to (.*)/,
+   /^Переключиться на (.*)/,
+   (awhere)->
+      where=@A awhere
+      if where=='found_item'
+        @root=@found_item.first()
+      else 
+        @root=$(document)
+      null
+ ]
 
 ]
 
@@ -81,7 +93,7 @@ ecballium.register_aliases
 
   'button': 'button'
   'link': 'a'
-  "ссылку":'link'
+  "ссылку":'a'
   "кнопку":'button'
   "anything with text": ''
   "все с текстом": ''
@@ -90,3 +102,6 @@ ecballium.register_aliases
   "aren't":"isn't"
   '-':'is'
   'не':"isn't"
+
+  'найденный элемент':'found_item'
+  'документ':'document'

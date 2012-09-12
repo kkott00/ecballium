@@ -54,7 +54,8 @@ class Ecballium
   aliases: {}
   handlers:[]
   animate:false
-  @DELAY:5000
+  DELAY:5000
+  root:$(document)
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
@@ -215,10 +216,15 @@ class Ecballium
           if @loc.file>=ecb_config.features.length
             @next 'all_done'
             return
+        @on_scenario_change()
       @save_persist
         loc:@loc
       @next 'step_ready'
-      
+  
+  on_scenario_change: ()->
+    @root=$(document)
+    
+
   get_cur_step:()->
     @get_file(ecb_config.features[@loc.file])
     .done ()=>
@@ -409,7 +415,7 @@ class EcballiumMouse
     @moveto toff.left+50,toff.top+obj.height()/2
   click:()->
     @el.css 
-      'background-color':'rgba(255,50,50,0.5)'
+      'background-color':'rgba(50,255,50,0.5)'
     wait(200).done ()=>
       @el.css 
         'background-color':'rgba(200,200,255,0.5)'
@@ -420,6 +426,33 @@ class EcballiumMouse
     wait(pause).done ()=>
       @text.detach()
 
+  event: (element,args) ->
+    event = document.createEvent('MouseEvent');
+    ev=args[0]
+    x1=args[1]
+    y1=args[2]
+    if args.length>3
+      x2=args[3]
+      y2=args[4]
+    else
+      x2=x1
+      y2=y1
+
+    #if x1>0<y1
+    #  @mousemove(x1,y1)
+    #  @mouseeffect(ev)
+    #console.log 'ev', ev,x1,y1,x2,y2
+    #console.log 'element', element
+    event.initMouseEvent(ev, true, true, window,
+          0, x1, y1, x2, y2, false, false, false, false, 0, null
+        )
+    $(element)[0].dispatchEvent(event)
+
+  trueClick: (obj)->
+    @event(obj, ['mousedown', 0, 0])
+    @event(obj, ['click'    , 0, 0])
+    @event(obj, ['mouseup'  , 0, 0])
+    @click()
 
     
 # I just leave it here
