@@ -26,7 +26,7 @@ window.load=(src,args)->
    head.appendChild(script)
 
    script.onreadystatechange= () ->
-     if (this.readyState == 'complete') 
+     if (this.readyState == 'complete')
        helper()
    script.onload= helper
    d.promise()
@@ -38,7 +38,7 @@ window.wait=(delay)->
   setTimeout cb,delay
   d.promise()
 
-URL='static/test/'
+URL='/static/test/'
 
 class Ecballium
   files:{}
@@ -55,6 +55,8 @@ class Ecballium
   handlers:[]
   animate:false
   DELAY:5000
+  REPEAT_TIME:5
+  DELAY_FOR_REPEAT:1000
   root:$(document)
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
@@ -82,11 +84,10 @@ class Ecballium
       $('body').append(@overlay)
       @overlay.hide()
       @next('init')
-  
+
   next: (state)->
     @state=state
     $(document).trigger 'ecb_next',state
-
 
   state_machine: (state)->
     #console.log 'state machine',state
@@ -99,11 +100,11 @@ class Ecballium
           @persist=JSON.parse(c)
           @next 'find_next_step'
         else
-          @save_persist 
+          @save_persist
             id: Math.round(Math.random()*1e10)
           @next 'get_cur_step'
     else if state=='get_cur_step'
-      @get_cur_step() 
+      @get_cur_step()
     else if state=='find_next_step'
       @find_next_step()
     else if state=='step_ready'
@@ -114,15 +115,15 @@ class Ecballium
       @post('all tests done','all tests done')
       $.cookie('ecballium',null)
 
-    else 
-      throw("unknown state #{state}")      
-     
-       
+    else
+      throw("unknown state #{state}")
+
+
   save_persist:(obj)->
     if obj
       $.extend(@persist,obj)
     $.cookie( 'ecballium',JSON.stringify(@persist) )
-  
+
   get_file: (file)->
     d=$.Deferred()
     if file not of @files
@@ -142,7 +143,7 @@ class Ecballium
             else
               current_step[data]+="#{i}\n"
             continue
-    
+
           if ti==''
             continue
           if i[0]=='#'
@@ -184,7 +185,7 @@ class Ecballium
           if re!=ti
             curfile['feature_name']=re.trim()
             continue
-            
+
           current_step={desc:ti,line:n}
         console.log 'compiled',@files[file]
         d.resolve()
@@ -220,16 +221,16 @@ class Ecballium
       @save_persist
         loc:@loc
       @next 'step_ready'
-  
+
   on_scenario_change: ()->
     @root=$(document)
-    
+
 
   get_cur_step:()->
     @get_file(ecb_config.features[@loc.file])
     .done ()=>
       @next 'step_ready'
-  
+
   loc2step:()->
     scn=@loc2scn()
     tmp=$.extend {},scn.steps[@loc.step]
@@ -246,7 +247,7 @@ class Ecballium
   loc2file:()->
     @files[ecb_config.features[@loc.file]]
 
-  
+
   run_step:()->
     #console.log 'run_step'
     step=@loc2step()
@@ -257,11 +258,11 @@ class Ecballium
       	m=step.desc.match j
       	if m
       	  break
-      if m 
+      if m
         break
     if not m
       @post('test error',"not found step")
-      return 
+      return
     try
       d=i.slice(-1)[0].apply @,m[1..]
       @post('success','success')
@@ -277,13 +278,13 @@ class Ecballium
           @next 'step_done'
     else
       @next 'step_done'
-  
+
   log: (msg,obj)->
     @logbuf+="#{new Date()} #{msg}\n"
     @jsonobj=obj
     @logbuf+=JSON.stringify(obj,@replacer,1)
-    
-    
+
+
   replacer: (key,value)->
     #console.log 'replacer',key,value,$.type value
     out=value
@@ -298,7 +299,7 @@ class Ecballium
         attrs: [i.name,i.value] for i in v[0].attributes
     #console.log 'replacer out',out
     out
-  
+
   post: (status,msg='')->
     if status=='all tests done'
       data=
@@ -317,7 +318,7 @@ class Ecballium
         id: @persist.id
         navigator:@navigator
 
-    @logbuf='' 
+    @logbuf=''
     $.post('/test',{status:status,data:JSON.stringify data,null,1})
     console.log '===',status,' = ',data.step,data
 
@@ -345,7 +346,7 @@ class Ecballium
     @overlay.show()
     caption=$("<div>#{msg}</div>")
     $('body').append(caption)
-    
+
     caption.css
       'z-index':10001
       'position':'absolute'
@@ -365,14 +366,14 @@ class Ecballium
     @handlers=@handlers.concat hs
 
   register_aliases: (as)->
-    $.extend @aliases,as 
-  
+    $.extend @aliases,as
+
   A: (al)->
   	m=al.match /^"(.*)"$/
   	if m
   	  return m[1]
   	out = if al of @aliases then @aliases[al] else al
-  
+
   S: (al)->
   	out = @A al
   	out = if 'apply' of out then out.apply @ else out
@@ -414,10 +415,10 @@ class EcballiumMouse
     #@moveto toff.left+obj.width()/2,toff.top+obj.height()/2
     @moveto toff.left+50,toff.top+obj.height()/2
   click:()->
-    @el.css 
+    @el.css
       'background-color':'rgba(50,255,50,0.5)'
     wait(200).done ()=>
-      @el.css 
+      @el.css
         'background-color':'rgba(200,200,255,0.5)'
   say:(say)->
     @text.html(say)
@@ -449,12 +450,13 @@ class EcballiumMouse
     $(element)[0].dispatchEvent(event)
 
   trueClick: (obj)->
+    @movetoobj(obj)
     @event(obj, ['mousedown', 0, 0])
     @event(obj, ['click'    , 0, 0])
     @event(obj, ['mouseup'  , 0, 0])
     @click()
 
-    
+
 # I just leave it here
 
 `
