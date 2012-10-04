@@ -264,7 +264,6 @@ class Ecballium
       @post('test error',"not found step")
       return
     try
-      @data = step.data
       d=i.slice(-1)[0].apply @,m[1..]
       @post('success','success')
     catch e
