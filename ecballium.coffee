@@ -248,16 +248,14 @@ class Ecballium
     @files[ecb_config.features[@loc.file]]
 
 
-  run_step:()->
-    #console.log 'run_step'
-    step=@loc2step()
+  ex_step:(step)->
     for i in @handlers
       #console.log 'handler',i
       for j in i.slice(0,-1)
-      	#console.log 'handler_re',j,step.desc
-      	m=step.desc.match j
-      	if m
-      	  break
+        #console.log 'handler_re',j,step.desc
+        m=step.match j
+        if m
+          break
       if m
         break
     if not m
@@ -273,6 +271,12 @@ class Ecballium
       @post('test failed',e.stack)
       if @skipScnOnError
         @loc.step=1e10  #to be sure scenario switch
+    return d
+
+  run_step:()->
+    #console.log 'run_step'
+    step=@loc2step().desc
+    d=@ex_step step
     if d and ('promise' of d)
         d.then ()=>
           @next 'step_done'
