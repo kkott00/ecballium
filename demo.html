@@ -8,24 +8,23 @@
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
+    <script src="static/test/jquery-1.8.0.min.js"></script>
     <script src="static/test/ecballium.js"></script>
     <script>
       $(function(){
-        $('header').load('header.html')
+        var hash = window.location.hash.slice(1);
+        window.ecb_config = {
+          modules: ['lib.js', 'demo.js'],
+          features: [hash+'.feature'],
+          policy: 'restart'
+          };
 
-        $('button').click(function(){
-          console.log('click');
-          var s=$(this);
-          s.after('<p class="caption">'+s.text()+' pressed</p>');
-        })
-        $('a.reset').click(function(){
-          $('p.caption').remove()
-        })
-        $.get('static/test/demo.feature').done(function(data){
-          $('code').text(data)
+        $('header').load('header.html')
+        console.log('hash',hash)
+        $('.testpage').load('testpages/'+hash+'.html')
+        $.get('static/test/'+hash+'.feature')
+        .done(function(data){
+          $('.testscript').text(data);
         })
         
       })
@@ -35,30 +34,10 @@
     <div class="wrapper">
       <header>
       </header>
-      <section>
+<section>
+<div class='testpage'>Test page should be here</div>
 
-        <h3>Demo page</h3>
-        <div class='desc'>
-          Let's pretend that we have page with several buttons and links. Buttons add captions at their tail on pressing.
-          Link 'Reset' cleans up all added captions. 
-        </div>
-        <div>
-          <a href="#" class="reset">Reset</a>
-        </div>
-        <div>
-          <button>Big Button</button>
-        </div>
-        <div>
-          <button>Button 1</button>
-        </div>
-        <div>
-          <button>Button 2</button>
-        </div>
-        <div>
-          <button>Button 3</button>
-        </div>
-
-<pre><code>
+<pre><code class="testscript"> BDD script should be here
 </code></pre>
 
 </section>
