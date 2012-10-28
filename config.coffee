@@ -8,3 +8,4 @@ window.ecb_config =
   ]
   #policy:  'continue'  
   policy: 'restart'
+  DELAY:5000
