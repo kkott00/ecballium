@@ -4,7 +4,7 @@ window.ecb_config =
    'demo.js'
   ]
   features:[
-   'demo.feature'    
+   'simple.feature'    
   ]
   #policy:  'continue'  
   policy: 'restart'
