@@ -1,7 +1,8 @@
 Feature: Demo
 
 Scenario: Press button
-  Find h3 "Demo page"
+  Go to simple test page
+  Find header "Demo page"
   Highlight and say "Test is about to start"
   Find button "Big Button"
   Say "Lets press this button"

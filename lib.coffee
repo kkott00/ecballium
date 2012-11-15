@@ -1,22 +1,19 @@
 ecballium.register_handlers [
- [/^Find (.*) "([^"]*)"/,
-  /^Найти (.*) "([^"]*)"/
-  (el,text)->
-    tloc = ()=>
-      count +=1
-      @found_item = if req then @root.find(req) else sel.apply @,[text]
-      if count < @REPEAT_TIME and @found_item.length == 0
-        return wait( @DELAY_FOR_REPEAT ).done ()=>
-                 tloc()
-      @assert @found_item.length!=0,'Element not found'
-      @log "find",$.makeArray @found_item
-      @mouse.movetoobj @found_item.first()
+ [/^Find (.*)/,
+  /^Найти (.*)/
+  (what)->
+    comp=what.split(' ')
+    type=comp[0]
+    par=comp.slice(1).join(' ')
+    type=@A type
+    @found_item=@frame.find(type)
+    console.log 'sel',@found_item
+    if par
+      @found_item=@found_item.find("contains(#{par})")
+    @assert @found_item.length,'found item'
+    console.log 'sel',@found_item
 
-    sel=@A el
-    count = 0
-    if not sel.apply
-      req = if text=='' then "#{sel}" else "#{sel}:contains(#{text})"
-    return tloc()
+    return 
  ]
 
  [/^Click found item/,
@@ -95,6 +92,14 @@ ecballium.register_handlers [
        return
  ]
 
+ [ /Go to (.+)/,
+   (url) ->
+     where = @A url
+     $('iframe').attr('src',where)
+     @inject()
+     return
+ ]
+
 ]
 
 ecballium.register_aliases
@@ -119,3 +124,5 @@ ecballium.register_aliases
 
   'найденный элемент':'found_item'
   'документ':'document'
+
+  'header': 'h1, h2, h3, h4, h5'
