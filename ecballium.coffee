@@ -26,6 +26,7 @@ window.load=(src,args)->
 window.wait=(delay)->
   d=$.Deferred()
   cb=()=>
+    console.log 'wait done',delay
     d.resolve()
   setTimeout cb,delay
   d.promise()
@@ -61,6 +62,7 @@ class Ecballium
       @URL=ecb_config.URL 
     console.log 'URL',@URL
     $(document).bind 'ecb_next', (e,state)=>
+      console.log 'ecb_next',state
       e.stopPropagation()
       @state_machine (state)
     #load modules
@@ -72,6 +74,7 @@ class Ecballium
       @next('config_loaded')
   
   next: (state)->
+    console.log 'next',state,@
     @state=state
     $(document).trigger 'ecb_next',state
 
@@ -106,7 +109,8 @@ class Ecballium
   init: ()->
     @DELAY=ecb_config.DELAY
 
-    $('.log').draggable()
+    $('.log').draggable
+      handle:'.header'
 
     $(document).bind 'ecballium.run_on_target_done', (data)=>
       @run_on_targe_done()
@@ -205,7 +209,9 @@ class Ecballium
     fh=@frame.find('head')
     scr=fh.find('script[x-injected]')
     if scr.length==0
-      fh.append('<script x-injected="" src="test/ecballiumbot.js">')
+      fh.append('<script x-injected="" src="static/test/ecballiumbot.js"></script>')
+    null
+
 
 
   find_next_step:()->
@@ -279,7 +285,7 @@ class Ecballium
       d=i.slice(-1)[0].apply @,m[1..]
       @post('success','success')
     catch e
-      #throw e
+      throw e
       #console.log 'exception',e
       #d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
       @last_exception=e
@@ -292,8 +298,11 @@ class Ecballium
     #console.log 'run_step'
     step=@loc2step().desc
     d=@ex_step step
-    if d and ('promise' of d)
-        d.then ()=>
+    console.log 'run_step',d
+    if d and ('then' of d)
+        #d.done ()=>
+        #  console.log 'd done'
+        d.done ()=>
           @next 'step_done'
     else
       @next 'step_done'
@@ -340,10 +349,12 @@ class Ecballium
     @logbuf=''
     #$.post('/test',{status:status,data:JSON.stringify data,null,1})
     console.log '===',status,' = ',data.step,data
-    li=$('<li>')
-    li.text("=== #{status}  = #{data.step}\ndata")
-    $('.log ul').append(li)
-
+    li=$('<dt>')
+    li.html("<b>#{status}</b>&nbsp;#{data.step}\n<div class='colapsible hidden'><code>#{data.msg}</code></div>")
+    $('.log dl').append(li)
+    li.find('.colapsible').click ()->
+      $(this).toggleClass("hidden");
+ 
   assert: (cond,msg='')->
     @skipScnOnError=false
     if not cond

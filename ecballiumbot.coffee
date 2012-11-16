@@ -116,7 +116,7 @@ class EcballiumMouse
      'min-height': '50px'
      #'width': '50px'
      'height': '50px'
-     'background-image':"url(#{@URL}/mouse.png)"
+     #'background-image':"url(#{@URL}/mouse.png)"
      'background-repeat': "no-repeat"
      padding:'10px 10px 10px 50px'
     $('body').append(@el)
@@ -180,3 +180,4 @@ class EcballiumMouse
 
 $ ()->
   ecballiumbot = new EcballiumBot() 
+  #$(parent.document).trigger('ecballium.inject_completed')

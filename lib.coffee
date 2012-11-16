@@ -1,17 +1,17 @@
 ecballium.register_handlers [
- [/^Find (.*)/,
-  /^Найти (.*)/
-  (what)->
-    comp=what.split(' ')
-    type=comp[0]
-    par=comp.slice(1).join(' ')
+ [/^Find ([^ ]+) (.*)/,
+  /^Найти ([^ ]+) (.*)/
+  (type,par)->
     type=@A type
+    par=@A par
+    console.log 'find',type,par
     @found_item=@frame.find(type)
     console.log 'sel',@found_item
     if par
-      @found_item=@found_item.find("contains(#{par})")
-    @assert @found_item.length,'found item'
+      @found_item=@found_item.filter(":contains(#{par})")
     console.log 'sel',@found_item
+
+    @assert @found_item.length,'Not found item'
 
     return 
  ]
@@ -96,8 +96,10 @@ ecballium.register_handlers [
    (url) ->
      where = @A url
      $('iframe').attr('src',where)
-     @inject()
-     return
+     d=wait(5000)
+     d.done ()=> 
+       @inject()
+     wait(6000)
  ]
 
 ]
