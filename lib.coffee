@@ -97,8 +97,11 @@ ecballium.register_handlers [
      where = @A url
      $('iframe').attr('src',where)
      d=wait(5000)
-     d.done ()=> 
+     d.done ()=>
+
        @inject()
+       @next('!!!hb1')
+
      wait(6000)
  ]
 

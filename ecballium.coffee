@@ -57,12 +57,14 @@ class Ecballium
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
   constructor:(opts)->
+    if window.ecballium
+      throw 'Double creation'
     $.extend @,opts
     if ecb_config and ecb_config.URL
       @URL=ecb_config.URL 
     console.log 'URL',@URL
     $(document).bind 'ecb_next', (e,state)=>
-      console.log 'ecb_next',state
+      console.log 'ecb_next_trigger',state
       e.stopPropagation()
       @state_machine (state)
     #load modules
@@ -94,7 +96,7 @@ class Ecballium
       when 'step_done' then @find_next_step()
       when 'all_done'
         @post('all tests done','all tests done')
-        $.cookie('ecballium',null)
+        #$.cookie('ecballium',null)
       else 
         throw("unknown state #{state}")      
     
@@ -118,20 +120,9 @@ class Ecballium
 
     wait(200)
     .done ()=>
-      c=$.cookie('ecballium')
-      if c and ecb_config.policy=='continue'
-        @persist=JSON.parse(c)
-        @next 'find_next_step'
-      else
-        @save_persist 
-          id: Math.round(Math.random()*1e10)
-        @next 'get_cur_step'
+      @next 'get_cur_step'
   
-  save_persist:(obj)->
-    if obj
-      $.extend(@persist,obj)
-    $.cookie( 'ecballium',JSON.stringify(@persist) )
-  
+ 
   get_file: (file)->
     d=$.Deferred()
     if file not of @files
@@ -209,7 +200,14 @@ class Ecballium
     fh=@frame.find('head')
     scr=fh.find('script[x-injected]')
     if scr.length==0
-      fh.append('<script x-injected="" src="static/test/ecballiumbot.js"></script>')
+      null
+      #fh.append('<script x-injected="" src="static/test/ecballiumbot.js"></script>')
+      script= document.createElement('script')
+      script.type= 'text/javascript'
+      script.src= "static/test/ecballiumbot.js"
+      fh[0].appendChild(script)
+      $(script).attr('x-injected','')
+
     null
 
 
@@ -238,8 +236,6 @@ class Ecballium
           if @loc.file>=ecb_config.features.length
             @next 'all_done'
             return
-      @save_persist
-        loc:@loc
       @next 'step_ready'
 
   on_scenario_change: ()->
@@ -390,48 +386,6 @@ class Ecballium
 
   run_on_target: (data)->
     @awaiting_cb.resolve(data)
-# I just leave it here
-
-`
-(function($) {
-    $.cookie = function(key, value, options) {
-
-        // key and at least value given, set cookie...
-        if (arguments.length > 1 && (!/Object/.test(Object.prototype.toString.call(value)) || value === null || value === undefined)) {
-            options = $.extend({}, options);
-
-            if (value === null || value === undefined) {
-                options.expires = -1;
-            }
-
-            if (typeof options.expires === 'number') {
-                var days = options.expires, t = options.expires = new Date();
-                t.setDate(t.getDate() + days);
-            }
-
-            value = String(value);
-
-            return (document.cookie = [
-                encodeURIComponent(key), '=', options.raw ? value : encodeURIComponent(value),
-                options.expires ? '; expires=' + options.expires.toUTCString() : '', // use expires attribute, max-age is not supported by IE
-                options.path    ? '; path=' + options.path : '',
-                options.domain  ? '; domain=' + options.domain : '',
-                options.secure  ? '; secure' : ''
-            ].join(''));
-        }
-
-        // key and possibly options given, get cookie...
-        options = value || {};
-        var decode = options.raw ? function(s) { return s; } : decodeURIComponent;
-
-        var pairs = document.cookie.split('; ');
-        for (var i = 0, pair; pair = pairs[i] && pairs[i].split('='); i++) {
-            if (decode(pair[0]) === key) return decode(pair[1] || ''); // IE saves cookies with empty string as "c; ", e.g. without "=" as opposed to EOMB, thus pair[1] may be undefined
-        }
-        return null;
-    };
-})(jQuery);
-`
 
 
 
