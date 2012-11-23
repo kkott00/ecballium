@@ -52,7 +52,6 @@ class Ecballium
   REPEAT_TIME:5
   DELAY_FOR_REPEAT:1000
   root:$(document)
-  URL:''
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
@@ -60,6 +59,8 @@ class Ecballium
     if window.ecballium
       throw 'Double creation'
     $.extend @,opts
+    @URL='/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
+
     if ecb_config and ecb_config.URL
       @URL=ecb_config.URL 
     console.log 'URL',@URL
@@ -69,7 +70,7 @@ class Ecballium
       @state_machine (state)
     #load modules
     if not window.ecb_config
-      load("#{@URL}config.js")
+      load("#{@URL}/config.js")
       .done ()=>
         @next('config_loaded')
     else
@@ -103,7 +104,7 @@ class Ecballium
   load_modules: ()->
     ds=[]
     for i in ecb_config.modules
-      ds.push load "#{@URL}#{i}"
+      ds.push load "#{@URL}/#{i}"
     $.when.apply(@,ds)
     .done ()=>
       @init 'modules_loaded'
@@ -115,7 +116,7 @@ class Ecballium
       handle:'.header'
 
     $(document).bind 'ecballium.run_on_target_done', (data)=>
-      @run_on_targe_done()
+      @run_on_target_done(data)
 
 
     wait(200)
@@ -126,7 +127,7 @@ class Ecballium
   get_file: (file)->
     d=$.Deferred()
     if file not of @files
-      $.get("#{@URL}#{file}",null,null,'text')
+      $.get("#{@URL}/#{file}",null,null,'text')
       .done (data)=>
         @files[file]=@compile_gerkhin(data)
         console.log 'compiled',@files[file]
@@ -204,7 +205,7 @@ class Ecballium
       #fh.append('<script x-injected="" src="static/test/ecballiumbot.js"></script>')
       script= document.createElement('script')
       script.type= 'text/javascript'
-      script.src= "static/test/ecballiumbot.js"
+      script.src= "#{@URL}/ecballiumbot.js"
       fh[0].appendChild(script)
       $(script).attr('x-injected','')
 
@@ -281,11 +282,11 @@ class Ecballium
       d=i.slice(-1)[0].apply @,m[1..]
       @post('success','success')
     catch e
-      throw e
       #console.log 'exception',e
       #d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
       @last_exception=e
       @post('test failed',e.stack)
+      throw e
       if @skipScnOnError
         @loc.step=1e10  #to be sure scenario switch
     return d
@@ -370,6 +371,7 @@ class Ecballium
     $.extend @aliases,as
 
   A: (al)->
+    if not al then return null
     m=al.match /^"(.*)"$/
     if m
       return m[1]
@@ -380,11 +382,11 @@ class Ecballium
     out = if 'apply' of out then out.apply @ else out
 
   run_on_target: (fun,args)->
-    $(frame).contents().trigger 'ecballium.run_on_target'
-    @awaiting_cb=@.Deferred()
+    frames[0].$(frames[0].document).trigger 'ecballium.run_on_target',fun
+    @awaiting_cb=$.Deferred()
     @awaiting_cb.promise()
 
-  run_on_target: (data)->
+  run_on_target_done: (data)->
     @awaiting_cb.resolve(data)
 
 
