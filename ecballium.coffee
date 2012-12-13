@@ -75,6 +75,9 @@ class Ecballium
     else
       @next('config_loaded')
   
+
+    @W=window.open(window.location.origin)
+    @frame=$(@W.document)
   next: (state)->
     console.log 'next',state,@
     @state=state
@@ -196,7 +199,7 @@ class Ecballium
     curfile
   
   inject: ()->
-    @frame=$('iframe').contents()
+    @frame=$(@W.document)
     fh=@frame.find('head')
     scr=fh.find('script[x-injected]')
     if scr.length==0
@@ -285,6 +288,7 @@ class Ecballium
       #console.log 'exception',e
       #d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
       @last_exception=e
+      #@W.close()
       @post('test failed',e.stack)
       if @skipScnOnError
         @loc.step=1e10  #to be sure scenario switch

@@ -1,19 +1,22 @@
 ecballium.register_handlers [
- [/^Find ([^ ]+) (.*)/,
-  /^Найти ([^ ]+) (.*)/
+ [/^Find (.+) with (.*)/,
+  /^Найти (.+) c (.*)/,
+  /^Find (.+)/,
   (type,par)->
     type=@A type
     par=@A par
     console.log 'find',type,par
-    @found_item=@frame.find(type)
+    @found_item=@root.find(type)
     console.log 'sel',@found_item
     if par
-      @found_item=@found_item.filter(":contains(#{par})")
+      @found_item = @found_item.has(":contains(#{par})")
     console.log 'sel',@found_item
 
     @assert @found_item.length,'Not found item'
 
-    return 
+    @run_on_target ()->
+      console.log 'i am on target',@
+      @mouse.movetoobj @ecb.found_item
  ]
 
  [/^Click found item/,
@@ -67,14 +70,16 @@ ecballium.register_handlers [
    @mouse.movetoobj f.first()
  ]
 
- [ /^Swith to (.*)/,
+ [ /^Switch to (.*)/,
    /^Переключиться на (.*)/,
    (awhere)->
       where=@A awhere
-      if where=='found_item'
+      if where=='found item'
         @root=@found_item.first()
       else
         @root=$(document)
+      if @root.is('iframe')
+        @root=@root.contents()
       null
  ]
 
@@ -95,12 +100,15 @@ ecballium.register_handlers [
  [ /Go to (.+)/,
    (url) ->
      where = @A url
-     $('iframe').attr('src',where)
+     @W.location.pathname=where
+     
+     #$('iframe').attr('src',where)
+
      d=wait(5000)
      d.done ()=>
 
        @inject()
-       @next('!!!hb1')
+       @root=@frame
 
      wait(6000)
  ]
@@ -121,13 +129,14 @@ ecballium.register_aliases
   "кнопку":'button'
   "anything with text": ''
   "все с текстом": ''
+  "frame":"iframe"
 
   "are":'is'
   "aren't":"isn't"
   '-':'is'
   'не':"isn't"
 
-  'найденный элемент':'found_item'
+  'найденный элемент':'found item'
   'документ':'document'
 
   'header': 'h1, h2, h3, h4, h5'
