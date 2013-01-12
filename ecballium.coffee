@@ -76,8 +76,8 @@ class Ecballium
     else
       @next('config_loaded')
   
-
-    @W=window.open(window.location.origin)
+    path = window.location.pathname.replace 'launcher.html','stub.html'
+    @W=window.open( window.location.origin + path )
     @frame=$(@W.document)
   next: (state)->
     console.log 'next',state,@
@@ -211,6 +211,7 @@ class Ecballium
       script.src= "#{@URL}/ecballiumbot.js"
       fh[0].appendChild(script)
       $(script).attr('x-injected','')
+
 
     null
 
@@ -386,7 +387,7 @@ class Ecballium
     out = if 'apply' of out then out.apply @ else out
 
   run_on_target: (fun,args)->
-    frames[0].$(frames[0].document).trigger 'ecballium.run_on_target',fun
+    @W.$(@W.document).trigger('ecballium.run_on_target',{f:fun,t:@})
     @awaiting_cb=$.Deferred()
     @awaiting_cb.promise()
 

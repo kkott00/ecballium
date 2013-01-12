@@ -9,7 +9,7 @@ ecballium.register_handlers [
     @found_item=@root.find(type)
     console.log 'sel',@found_item
     if par
-      @found_item = @found_item.has(":contains(#{par})")
+      @found_item = @found_item.filter(":contains(#{par})")
     console.log 'sel',@found_item
 
     @assert @found_item.length,'Not found item'
@@ -90,7 +90,7 @@ ecballium.register_handlers [
       return
  ]
 
- [ /^Wait ([^"]+)/,
+ [ /^Wait ([^"]+) seconds/,
    /^Подождать ([^"]+)/,
    (sec)->
      wait(parseInt(sec)*1000).done ()=>
@@ -100,7 +100,7 @@ ecballium.register_handlers [
  [ /Go to (.+)/,
    (url) ->
      where = @A url
-     @W.location.pathname=where
+     @W.location.href=where
      
      #$('iframe').attr('src',where)
 

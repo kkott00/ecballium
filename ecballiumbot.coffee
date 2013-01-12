@@ -29,6 +29,13 @@ class EcballiumBot
   constructor:(opts)->
     $.extend @,opts
     @mouse=new EcballiumMouse()
+    console.log 'constructor'
+    $(document).bind 'ecballium.run_on_target',(e,pars)=>
+      console.log 'rpc',e,pars
+      @ecb=pars['t']
+      fun=pars['f']
+      console.log 'rpc',e,fun
+      fun.apply @
 
   log: (msg,obj)->
     @logbuf+="#{new Date()} #{msg}\n"
@@ -179,5 +186,5 @@ class EcballiumMouse
     @click()
 
 $ ()->
-  ecballiumbot = new EcballiumBot() 
+  window.ecballiumbot = new EcballiumBot() 
   #$(parent.document).trigger('ecballium.inject_completed')
