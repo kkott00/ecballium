@@ -79,6 +79,7 @@ class Ecballium
     path = window.location.pathname.replace 'launcher.html','stub.html'
     @W=window.open( window.location.origin + path )
     @frame=$(@W.document)
+
   next: (state)->
     console.log 'next',state,@
     @state=state
@@ -387,11 +388,12 @@ class Ecballium
     out = if 'apply' of out then out.apply @ else out
 
   run_on_target: (fun,args)->
-    @W.$(@W.document).trigger('ecballium.run_on_target',{f:fun,t:@})
     @awaiting_cb=$.Deferred()
+    @W.$(@W.document).trigger('ecballium.run_on_target',fun)
     @awaiting_cb.promise()
 
   run_on_target_done: (data)->
+    console.log 'run_on_target_done'
     @awaiting_cb.resolve(data)
 
 

@@ -32,10 +32,8 @@ class EcballiumBot
     console.log 'constructor'
     $(document).bind 'ecballium.run_on_target',(e,pars)=>
       console.log 'rpc',e,pars
-      @ecb=pars['t']
-      fun=pars['f']
-      console.log 'rpc',e,fun
-      fun.apply @
+      @ecb=opener.ecballium
+      pars.apply @
 
   log: (msg,obj)->
     @logbuf+="#{new Date()} #{msg}\n"
@@ -104,7 +102,9 @@ class EcballiumBot
 
   register_aliases: (as)->
     $.extend @aliases,as
-
+  
+  done: ()->
+    opener.$(opener.document).trigger 'ecballium.run_on_target_done'
 
 class EcballiumMouse
   x:300

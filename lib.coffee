@@ -17,6 +17,7 @@ ecballium.register_handlers [
     @run_on_target ()->
       console.log 'i am on target',@
       @mouse.movetoobj @ecb.found_item
+      @done()
  ]
 
  [/^Click found item/,
