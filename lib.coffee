@@ -29,7 +29,9 @@ ecballium.register_handlers [
  [/^Say "([^"]+)"/,
   /^Комментарий "([^"]+)"/,
   (say)->
-    @mouse.say(say)
+    @run_on_target ()->
+      @mouse.say(say)
+      @done()
  ]
 
  [/^(\w+) animation/,
@@ -42,16 +44,17 @@ ecballium.register_handlers [
  [/^Highlight and say "([^"]+)"/,
   /^Выделить и добавить комментарий "([^"]+)"/,
   (comment)->
-    item=@found_item
-    console.log 'highlight',item.is(':visible')
-    old=@dump_css item,
-      'z-index':10001
-      'position':'relative'
-      'background-color':'white'
-    item_pos=item.first().offset()
-    d=@show_message item_pos.left,item_pos.top+item.outerHeight()+5,comment
-    d.done ()=>
-	    item.css old
+    #console.log 'highlight',item.is(':visible')
+    @run_on_target ()->
+      item=@ecb.found_item
+      old=@mouse.dump_css item,
+        'z-index':10001
+        'position':'relative'
+        'background-color':'white'
+      item_pos=item.first().offset()
+      d=@mouse.show_message item_pos.left,item_pos.top+item.outerHeight()+5,comment
+      d.done ()=>
+  	    item.css old
  ]
 
  [/^(Check|Fail) if (.+) (are|is|aren\'t|isn\'t) (.+)/,

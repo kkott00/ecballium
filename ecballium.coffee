@@ -77,7 +77,7 @@ class Ecballium
       @next('config_loaded')
   
     path = window.location.pathname.replace 'launcher.html','stub.html'
-    @W=window.open( window.location.origin + path )
+    @W=window.open( window.location.origin + path, 'AUT', "width=1024,height=768" )
     @frame=$(@W.document)
 
   next: (state)->
