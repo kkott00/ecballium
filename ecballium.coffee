@@ -36,6 +36,7 @@ window.wait=(delay)->
 
 class Ecballium
   files:{}
+  stack:[]
   persist:{}
   loc:
     file:0
@@ -60,25 +61,19 @@ class Ecballium
       throw 'Double creation'
     $.extend @,opts
     @URL='/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
-
-    if ecb_config and ecb_config.URL
-      @URL=ecb_config.URL 
+    @hash = window.location.hash.slice(1);
+    @stack.push @hash
     console.log 'URL',@URL
     $(document).bind 'ecb_next', (e,state)=>
       console.log 'ecb_next_trigger',state
       e.stopPropagation()
       @state_machine (state)
     #load modules
-    if not window.ecb_config
-      load("#{@URL}/config.js")
-      .done ()=>
-        @next('config_loaded')
-    else
-      @next('config_loaded')
-  
     path = window.location.pathname.replace 'launcher.html','stub.html'
-    @W=window.open( window.location.origin + path, 'AUT', "width=1024,height=768" )
+    @W=opener;
     @frame=$(@W.document)
+    wait(3000).done ()=> #debug delay
+      @init()
 
   next: (state)->
     console.log 'next',state,@
@@ -89,11 +84,6 @@ class Ecballium
   state_machine: (state,e)->
     console.log 'state machine',state
     switch state
-      when 'config_loaded'
-        @load_modules()
-      when 'modules_loaded'
-        if ecb_config and ecb_config.mode=='passive' then return;
-        @init()
       #wait for modules loading
       when 'get_cur_step' then @get_cur_step() 
       when 'find_next_step' then @find_next_step()
@@ -120,8 +110,6 @@ class Ecballium
       @init 'modules_loaded'
 
   init: ()->
-    @DELAY=ecb_config.DELAY
-
     $('.log').draggable
       handle:'.header'
 
@@ -129,9 +117,14 @@ class Ecballium
       @run_on_target_done(data)
 
 
-    wait(200)
-    .done ()=>
-      @next 'get_cur_step'
+    #wait(200)
+    #.done ()=>
+    #  @next 'get_cur_step'
+    load('lib.js').done ()=>
+      load(@hash+'.js').done ()=>
+        @get_file(@hash+'.feature').done ()=>
+          @next 'step_ready'
+
   
  
   get_file: (file)->
@@ -139,7 +132,7 @@ class Ecballium
     if file not of @files
       $.get("#{@URL}/#{file}",null,null,'text')
       .done (data)=>
-        @files[file]=@compile_gerkhin(data)
+        @files[file.split('.')[0]] = @compile_gerkhin(data)
         console.log 'compiled',@files[file]
         d.resolve()
     else
@@ -244,7 +237,7 @@ class Ecballium
           @loc.scn=0
           @loc.file+=1
           #check if there are another files in config
-          if @loc.file>=ecb_config.features.length
+          if @stack.length==0
             @next 'all_done'
             return
       @next 'step_ready'
@@ -254,7 +247,7 @@ class Ecballium
 
 
   get_cur_step:()->
-    @get_file(ecb_config.features[@loc.file])
+    @get_file(@stack[0])
     .done ()=>
       @next 'step_ready'
   
@@ -269,10 +262,11 @@ class Ecballium
     tmp
 
   loc2scn:()->
-    @files[ecb_config.features[@loc.file]].scenarios[@loc.scn]
+    debugger;
+    @files[@stack[0]].scenarios[@loc.scn]
 
   loc2file:()->
-    @files[ecb_config.features[@loc.file]]
+    @files[@stack[0]]
 
 
   ex_step:(step)->
@@ -347,7 +341,7 @@ class Ecballium
       step=@loc2step()
       data=
         msg:msg
-        file: ecb_config[@loc.file]
+        file: @stack[0]
         step: step.desc
         line: step.line
         log: @logbuf
