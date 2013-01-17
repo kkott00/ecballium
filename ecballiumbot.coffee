@@ -116,6 +116,7 @@ class EcballiumMouse
     @el.animate {top:@y,left:@x},100,()=>d.resolve()
     d
   movetoobj:(obj)->
+    debugger;
     toff = obj.offset()
     #@moveto toff.left+obj.width()/2,toff.top+obj.height()/2
     @moveto toff.left+50,toff.top+obj.height()/2

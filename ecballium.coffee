@@ -97,7 +97,13 @@ class Ecballium
       #wait for modules loading
       when 'get_cur_step' then @get_cur_step() 
       when 'find_next_step' then @find_next_step()
-      when 'step_ready' then @run_step()
+      when 'step_ready' 
+        if @inject() 
+          @run_step()
+        else
+          # wait until injection comleted
+          wait(@DELAY/2).done ()=>
+            @next('step_ready')
       when 'step_done' then @find_next_step()
       when 'all_done'
         @post('all tests done','all tests done')
@@ -212,9 +218,8 @@ class Ecballium
       script.src= "#{@URL}/ecballiumbot.js"
       fh[0].appendChild(script)
       $(script).attr('x-injected','')
-
-
-    null
+      return false
+    return true
 
 
 

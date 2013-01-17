@@ -6,7 +6,7 @@ ecballium.register_handlers [
     type=@A type
     par=@A par
     console.log 'find',type,par
-    @found_item=@root.find(type)
+    @found_item=$(type,@root)
     console.log 'sel',@found_item
     if par
       @found_item = @found_item.filter(":contains(#{par})")
@@ -23,7 +23,10 @@ ecballium.register_handlers [
  [/^Click found item/,
   /^Кликнуть на найденом/,
   ()->
-    @mouse.trueClick(@found_item)
+    @run_on_target ()->
+      @mouse.trueClick(@ecb.found_item)
+      @done()
+    wait(500) #just allow on click action work
  ]
 
  [/^Say "([^"]+)"/,
@@ -74,6 +77,13 @@ ecballium.register_handlers [
    @mouse.movetoobj f.first()
  ]
 
+[ /^Switch to frame (.+)/,
+    (num)->
+      @root=@W.frames[num].document
+      null
+ ],
+
+
  [ /^Switch to (.*)/,
    /^Переключиться на (.*)/,
    (awhere)->
@@ -85,13 +95,16 @@ ecballium.register_handlers [
       if @root.is('iframe')
         @root=@root.contents()
       null
- ]
+ ],
+
+
 
  [ /^Enter "([^"]+)"/,
    /^Ввести "([^"]+)"/,
    (text)->
-      @found_item.val(text)
-      return
+      @run_on_target ()->
+        @ecb.found_item.val(text)
+        @done()
  ]
 
  [ /^Wait ([^"]+) seconds/,
@@ -144,3 +157,5 @@ ecballium.register_aliases
   'документ':'document'
 
   'header': 'h1, h2, h3, h4, h5'
+
+  'фрейм':'frame'
