@@ -6,27 +6,23 @@ ecballium.register_handlers [
     type=@A type
     par=@A par
     console.log 'find',type,par
-    @found_item=$(type,@root)
-    console.log 'sel',@found_item
+    @ecb.found_item=$(type,@root)
+    console.log 'sel',@ecb.found_item
     if par
-      @found_item = @found_item.filter(":contains(#{par})")
-    console.log 'sel',@found_item
+      @ecb.found_item = @ecb.found_item.filter(":contains(#{par})")
+    console.log 'sel',@ecb.found_item
 
-    @assert @found_item.length,'Not found item'
+    @assert @ecb.found_item.length,'Not found item'
 
-    @run_on_target ()->
-      console.log 'i am on target',@
-      @mouse.movetoobj @ecb.found_item
-      @done()
+    @mouse.movetoobj @ecb.found_item
+    @done()
  ]
 
  [/^Click found item/,
   /^Кликнуть на найденом/,
   ()->
-    @run_on_target ()->
-      @mouse.trueClick(@ecb.found_item)
-      @done()
-    wait(500) #just allow on click action work
+    @mouse.trueClick(@ecb.found_item)
+    @done()
  ]
 
  [/^Say "([^"]+)"/,
@@ -79,8 +75,9 @@ ecballium.register_handlers [
 
 [ /^Switch to frame (.+)/,
     (num)->
-      @root=@W.frames[num].document
-      null
+      console.log 'sframe',num
+      @root=frames[num].document
+      @done('success')
  ],
 
 
@@ -116,18 +113,13 @@ ecballium.register_handlers [
 
  [ /Go to (.+)/,
    (url) ->
+     @console.log 'gotoh',url
      where = @A url
-     @W.location.href=where
+
+     @console.log 'gotoh',where
+     @window.location.href=where
      
-     #$('iframe').attr('src',where)
-
-     d=wait(5000)
-     d.done ()=>
-
-       @inject()
-       @root=@frame
-
-     wait(6000)
+     wait(2000)
  ]
 
 ]

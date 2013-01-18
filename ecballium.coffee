@@ -53,6 +53,7 @@ class Ecballium
   REPEAT_TIME:5
   DELAY_FOR_REPEAT:1000
   root:$(document)
+  window:window
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
@@ -72,7 +73,7 @@ class Ecballium
     path = window.location.pathname.replace 'launcher.html','stub.html'
     @W=opener;
     @frame=$(@W.document)
-    wait(3000).done ()=> #debug delay
+    wait(1000).done ()=> #debug delay
       @init()
 
   next: (state)->
@@ -92,7 +93,7 @@ class Ecballium
           @run_step()
         else
           # wait until injection comleted
-          wait(@DELAY/2).done ()=>
+          wait(@DELAY/2+10).done ()=>
             @next('step_ready')
       when 'step_done' then @find_next_step()
       when 'all_done'
@@ -100,7 +101,7 @@ class Ecballium
         #$.cookie('ecballium',null)
       else 
         throw("unknown state #{state}")      
-    
+  ###  
   load_modules: ()->
     ds=[]
     for i in ecb_config.modules
@@ -108,13 +109,13 @@ class Ecballium
     $.when.apply(@,ds)
     .done ()=>
       @init 'modules_loaded'
-
+  ###
   init: ()->
     $('.log').draggable
       handle:'.header'
 
-    $(document).bind 'ecballium.run_on_target_done', (data)=>
-      @run_on_target_done(data)
+    $(document).bind 'ecballium.run_on_target_done', (data,status)=>
+      @run_on_target_done(data,status)
 
 
     #wait(200)
@@ -122,7 +123,7 @@ class Ecballium
     #  @next 'get_cur_step'
     load('lib.js').done ()=>
       load(@hash+'.js').done ()=>
-        @get_file(@hash+'.feature').done ()=>
+        @get_file(@hash).done ()=>
           @next 'step_ready'
 
   
@@ -130,9 +131,9 @@ class Ecballium
   get_file: (file)->
     d=$.Deferred()
     if file not of @files
-      $.get("#{@URL}/#{file}",null,null,'text')
+      $.get("#{@URL}/#{file}.feature",null,null,'text')
       .done (data)=>
-        @files[file.split('.')[0]] = @compile_gerkhin(data)
+        @files[file] = @compile_gerkhin(data)
         console.log 'compiled',@files[file]
         d.resolve()
     else
@@ -217,7 +218,7 @@ class Ecballium
 
 
   find_next_step:()->
-    @get_file(ecb_config.features[@loc.file])
+    @get_file(@stack[0])
     .done ()=>
       #check if there are another steps in scenario
       scn=@loc2scn()
@@ -262,7 +263,6 @@ class Ecballium
     tmp
 
   loc2scn:()->
-    debugger;
     @files[@stack[0]].scenarios[@loc.scn]
 
   loc2file:()->
@@ -270,6 +270,7 @@ class Ecballium
 
 
   ex_step:(step)->
+    console.log 'ex_step',@loc2step().desc
     for i in @handlers
       #console.log 'handler',i
       for j in i.slice(0,-1)
@@ -282,25 +283,19 @@ class Ecballium
     if not m
       @post('test error',"not found step")
       return
-    try
-      d=i.slice(-1)[0].apply @,m[1..]
-      @post('success','success')
-    catch e
-      #console.log 'exception',e
-      #d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
-      @last_exception=e
-      #@W.close()
-      @post('test failed',e.stack)
-      throw e
-      if @skipScnOnError
-        @loc.step=1e10  #to be sure scenario switch
-    return d
+    @run_on_target i.slice(-1)[0],m[1..]
+    ###
+    
+    ###
+    return null
 
   run_step:()->
     #console.log 'run_step'
     step=@loc2step().desc
     d=@ex_step step
+    ###
     console.log 'run_step',d
+
     if d and ('then' of d)
         #d.done ()=>
         #  console.log 'd done'
@@ -308,6 +303,7 @@ class Ecballium
           @next 'step_done'
     else
       @next 'step_done'
+    ###
 
   log: (msg,obj)->
     @logbuf+="#{new Date()} #{msg}\n"
@@ -375,25 +371,26 @@ class Ecballium
   register_aliases: (as)->
     $.extend @aliases,as
 
-  A: (al)->
-    if not al then return null
-    m=al.match /^"(.*)"$/
-    if m
-      return m[1]
-    out = if al of @aliases then @aliases[al] else al
-
-  S: (al)->
-    out = @A al
-    out = if 'apply' of out then out.apply @ else out
 
   run_on_target: (fun,args)->
-    @awaiting_cb=$.Deferred()
-    @W.$(@W.document).trigger('ecballium.run_on_target',fun)
-    @awaiting_cb.promise()
+    @W.$(@W.document).trigger 'ecballium.run_on_target',{'fun':fun,'ctx':@,'args':args}
 
-  run_on_target_done: (data)->
-    console.log 'run_on_target_done'
-    @awaiting_cb.resolve(data)
+  run_on_target_done: (data,status)->
+    console.log 'run_on_target_done',status
+    
+    if status=='redirected'
+      @post('success','success')
+      wait(@DELAY/2).done ()=>  #wait until page reloaded
+        @next 'step_done'
+    else if status=='error'
+      @post('failed',@last_exception.stack)
+      @next 'step_done'
+    else if status=='failed'
+      @post('failed',@last_exception.stack)
+      @loc.step=1e10
+    else
+      @post('success','success')
+      @next 'step_done'
 
 
 

@@ -31,6 +31,8 @@ class EcballiumBot
   DELAY_FOR_REPEAT:1000
   root:$(document)
   URL:''
+  window:window
+  console:console
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
@@ -39,9 +41,35 @@ class EcballiumBot
     @mouse=new EcballiumMouse()
     console.log 'constructor'
     $(document).bind 'ecballium.run_on_target',(e,pars)=>
-      console.log 'rpc',e,pars,opener.ecballiumbot
-      @ecb=opener.ecballium
-      pars.apply @
+      @run_handler(pars)
+    window.onbeforeunload = () =>
+      @done('redirected')
+      return null;
+    ###
+    $(document).bind 'unload',()=>
+      alert('here');
+    ###
+
+  run_handler: (pars)->
+    console.log 'rpc',pars
+    @ecb=pars['ctx']
+    try
+      pars['fun'].apply @,pars['args']
+    catch e
+      #console.log 'exception',e
+      #d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
+      @ecb.last_exception=e
+      #@W.close()
+      if @ecb.skipScnOnError
+        @done('failed')
+      else
+        @done('error')
+      throw e
+      
+ 
+
+  debugger:()->
+    debugger;
 
   log: (msg,obj)->
     @logbuf+="#{new Date()} #{msg}\n"
@@ -64,11 +92,21 @@ class EcballiumBot
     #console.log 'replacer out',out
     out
   
+  done: (status)->
+    console.log 'done',@ecb.window
+    @ecb.window.$(@ecb.window.document).trigger 'ecballium.run_on_target_done',status
 
+  A: (al)->
+    if not al then return null
+    m=al.match /^"(.*)"$/
+    if m
+      return m[1]
+    out = if al of @ecb.aliases then @ecb.aliases[al] else al
 
-  
-  done: ()->
-    opener.$(opener.document).trigger 'ecballium.run_on_target_done'
+  S: (al)->
+    out = @A al
+    out = if 'apply' of out then out.apply @ else out
+
 
 class EcballiumMouse
   x:300
