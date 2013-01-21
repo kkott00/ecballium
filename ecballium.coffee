@@ -359,16 +359,6 @@ class Ecballium
     li.find('.colapsible').click ()->
       $(this).toggleClass("hidden");
  
-  assert: (cond,msg='')->
-    @skipScnOnError=false
-    if not cond
-      throw Error(msg)
-
-  fail: (cond,msg='')->
-    @skipScnOnError=true
-    if not cond
-      throw Error(msg)
-
 
   register_handlers: (hs)->
     console.log 'reg hnld',hs

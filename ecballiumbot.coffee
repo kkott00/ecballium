@@ -138,6 +138,18 @@ class EcballiumBot
     out = @A al
     out = if 'apply' of out then out.apply @ else out
 
+  assert: (cond,msg='')->
+    @skipScnOnError=false
+    if not cond
+      throw Error(msg)
+
+  fail: (cond,msg='')->
+    @skipScnOnError=true
+    if not cond
+      throw Error(msg)
+
+
+
 
 class EcballiumMouse
   x:300
