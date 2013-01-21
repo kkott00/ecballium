@@ -114,8 +114,14 @@ class Ecballium
     $('.log').draggable
       handle:'.header'
 
-    $(document).bind 'ecballium.run_on_target_done', (data,status)=>
-      @run_on_target_done(data,status)
+    #$(document).bind 'ecballium.run_on_target_done', (data,status)=>
+    #  @run_on_target_done(data,status)
+
+    window.addEventListener "message"
+      ,(e)=>    
+        @run_on_target_done(null,e.data)
+      ,false
+
 
 
     #wait(200)
@@ -373,7 +379,9 @@ class Ecballium
 
 
   run_on_target: (fun,args)->
-    @W.$(@W.document).trigger 'ecballium.run_on_target',{'fun':fun,'ctx':@,'args':args}
+    #@W.$(@W.document).trigger 'ecballium.run_on_target',{'fun':fun,'ctx':@,'args':args}
+    #@W.ecballiumbot.ecb=@
+    @W.postMessage JSON.stringify({'fun':fun.toString(),'args':args}),@W.location.origin
 
   run_on_target_done: (data,status)->
     console.log 'run_on_target_done',status

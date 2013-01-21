@@ -75,8 +75,8 @@ ecballium.register_handlers [
 
 [ /^Switch to frame (.+)/,
     (num)->
-      console.log 'sframe',num
-      @root=frames[num].document
+      @console.log 'sframe',num
+      @root=@window.frames[num].document
       @done('success')
  ],
 
@@ -116,10 +116,13 @@ ecballium.register_handlers [
      @console.log 'gotoh',url
      where = @A url
 
+     @onredirect=()=>
+       null
+
+
      @console.log 'gotoh',where
      @window.location.href=where
      
-     wait(2000)
  ]
 
 ]
