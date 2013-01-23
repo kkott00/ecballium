@@ -218,6 +218,8 @@ class Ecballium
       script.src= "#{@URL}/ecballiumbot.js"
       fh[0].appendChild(script)
       $(script).attr('x-injected','')
+      wait(2010).done ()=>
+        @W.ecballiumbot.ecb=@
       return false
     return true
 
@@ -298,6 +300,7 @@ class Ecballium
   run_step:()->
     #console.log 'run_step'
     step=@loc2step().desc
+    @post('pre')
     d=@ex_step step
     ###
     console.log 'run_step',d
@@ -339,6 +342,11 @@ class Ecballium
         log: @logbuf
         id: @persist.id
         navigator:@navigator
+    else if status=='pre'
+      step=@loc2step()
+      li=$("<dt class='pre_msg'>#{step.desc}</dt>")
+      $('.log dl').append(li)
+      return
     else
       step=@loc2step()
       data=
@@ -353,8 +361,11 @@ class Ecballium
     @logbuf=''
     #$.post('/test',{status:status,data:JSON.stringify data,null,1})
     console.log '===',status,' = ',data.step,data
-    li=$('<dt>')
-    li.html("<b>#{status}</b>&nbsp;#{data.step}\n<div class='colapsible hidden'><code>#{data.msg}</code></div>")
+    msg_el="<b>#{status}</b>&nbsp;#{data.step}"
+    if data.msg
+      msg_el+="<div class='colapsible hidden'><code>#{data.msg}</code></div>"
+    li=$("<dt>#{msg_el}</dt>")
+    $('.log dl dt.pre_msg').remove()
     $('.log dl').append(li)
     li.find('.colapsible').click ()->
       $(this).toggleClass("hidden");
@@ -371,13 +382,13 @@ class Ecballium
   run_on_target: (fun,args)->
     #@W.$(@W.document).trigger 'ecballium.run_on_target',{'fun':fun,'ctx':@,'args':args}
     #@W.ecballiumbot.ecb=@
-    @W.postMessage JSON.stringify({'fun':fun.toString(),'args':args}),@W.location.origin
+    @W.postMessage JSON.stringify({'fun':fun.toString(),'args':args}),"#{@W.location.protocol}//#{@W.location.host}"
 
   run_on_target_done: (data,status)->
     console.log 'run_on_target_done',status
     
     if status=='redirected'
-      @post('success','success')
+      @post('success')
       wait(@DELAY/2).done ()=>  #wait until page reloaded
         @next 'step_done'
     else if status=='error'
@@ -387,8 +398,14 @@ class Ecballium
       @post('failed',@last_exception.stack)
       @loc.step=1e10
     else
-      @post('success','success')
-      @next 'step_done'
+      @post('success')
+      if @after_step_delay
+        debugger;
+        wait(@after_step_delay).done ()=>
+          @next 'step_done'
+        @after_step_delay=null
+      else
+        @next 'step_done'
 
 
 

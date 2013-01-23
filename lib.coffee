@@ -28,9 +28,8 @@ ecballium.register_handlers [
  [/^Say "([^"]+)"/,
   /^Комментарий "([^"]+)"/,
   (say)->
-    @run_on_target ()->
-      @mouse.say(say)
-      @done()
+    @mouse.say(say)
+    @done()
  ]
 
  [/^(\w+) animation/,
@@ -99,16 +98,15 @@ ecballium.register_handlers [
  [ /^Enter "([^"]+)"/,
    /^Ввести "([^"]+)"/,
    (text)->
-      @run_on_target ()->
-        @ecb.found_item.val(text)
-        @done()
+      @ecb.found_item.val(text)
+      @done()
  ]
 
  [ /^Wait ([^"]+) seconds/,
    /^Подождать ([^"]+)/,
    (sec)->
-     wait(parseInt(sec)*1000).done ()=>
-       return
+     @ecb.after_step_delay=sec*1000
+     @done('success')
  ]
 
  [ /Go to (.+)/,
@@ -119,7 +117,7 @@ ecballium.register_handlers [
      @onredirect=()=>
        null
 
-
+     @ecb.after_step_delay=2*1000
      @console.log 'gotoh',where
      @window.location.href=where
      

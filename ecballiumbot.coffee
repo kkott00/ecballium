@@ -124,7 +124,7 @@ class EcballiumBot
   
   done: (status)->
     console.log 'done',@ecb.window
-    @ecb.window.postMessage status,@ecb.window.location.origin
+    @ecb.window.postMessage status,"#{@ecb.window.location.protocol}//#{@ecb.window.location.host}"
     #@ecb.window.$(@ecb.window.document).trigger 'ecballium.run_on_target_done',status
 
   A: (al)->
@@ -197,7 +197,6 @@ class EcballiumMouse
     @el.animate {top:@y,left:@x},100,()=>d.resolve()
     d
   movetoobj:(obj)->
-    debugger;
     toff = obj.offset()
     #@moveto toff.left+obj.width()/2,toff.top+obj.height()/2
     @moveto toff.left+50,toff.top+obj.height()/2
