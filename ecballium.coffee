@@ -241,10 +241,10 @@ class Ecballium
             @loc.scn-=1 #repeat scenario again
         @loc.scn+=1
         #check if there are another scenarios in file
-        file=@loc2file()
+        file=@files[@stack[0]]
         if @loc.scn>=file.scenarios.length
           @loc.scn=0
-          @loc.file+=1
+          @stack.shift()
           #check if there are another files in config
           if @stack.length==0
             @next 'all_done'
@@ -272,10 +272,6 @@ class Ecballium
 
   loc2scn:()->
     @files[@stack[0]].scenarios[@loc.scn]
-
-  loc2file:()->
-    @files[@stack[0]]
-
 
   ex_step:(step)->
     console.log 'ex_step',@loc2step().desc
@@ -390,13 +386,14 @@ class Ecballium
     if status=='redirected'
       @post('success')
       wait(@DELAY/2).done ()=>  #wait until page reloaded
-        @next 'step_done'
-    else if status=='error'
-      @post('failed',@last_exception.stack)
-      @next 'step_done'
+        @next 'step_done'  
     else if status=='failed'
       @post('failed',@last_exception.stack)
+      @next 'step_done'
+    else if status=='error'
+      @post('failed',@last_exception.stack)
       @loc.step=1e10
+      @next 'step_done'
     else
       @post('success')
       if @after_step_delay
