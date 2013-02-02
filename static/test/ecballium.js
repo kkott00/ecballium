@@ -150,9 +150,6 @@
 
     Ecballium.prototype.init = function() {
       var _this = this;
-      $('.log').draggable({
-        handle: '.header'
-      });
       window.addEventListener("message", function(e) {
         return _this.run_on_target_done(null, e.data);
       }, false);
