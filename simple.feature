@@ -33,16 +33,18 @@ Scenario: Failed checks
   Say "But what happens if something is wrong?"
   Find button with "Big Button"
   Click found item
+  Find caption with "Big Button pressed"
   Check if text is "Big Button clicked"
   Find button with "Button 1"
   Click found item
-  Fail if text is "Button 1 clicked"
+  Find caption with "Button 1 pressed"
+  Stop if text is "Button 1 clicked"
   Find button with "Button 2"
   Click found item
 
 Scenario: Animation, guides and screncasts
   Say "I want to show something to user"
-  Find button ""
+  Find button
   Highlight and say "I can highlight any elements just like these buttons"
 
 Scenario: Bye-bye

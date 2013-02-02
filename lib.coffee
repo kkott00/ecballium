@@ -55,16 +55,16 @@ ecballium.register_handlers [
       @done('success')
  ]
 
- [/^(Check|Fail) if (.+) (are|is|aren\'t|isn\'t) (.+)/,
+ [/^(Check|Stop) if (.+) (are|is|aren\'t|isn\'t) (.+)/,
   /^(Проверить|Остановиться) если (.+) (-|не) (.+)/,
   (action,sel,cond,val)->
    if sel=='text'
-     res=(@found_item.text()==val)
+     res = (@ecb.found_item.text()==val)
    else
-     res=(@found_item.css(@A el)==val)
+     res = (@ecb.found_item.css(@A el)==val)
    if (@A cond)=="isn't"
-     res=not res
-   assertion="check for for #{sel} with value #{val}"
+     res = not res
+   assertion = "check for for #{sel} with value #{val}"
    if (@A action)=='Check'
      @assert(res,assertion)
    else
