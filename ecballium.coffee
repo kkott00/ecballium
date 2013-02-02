@@ -389,11 +389,13 @@ class Ecballium
         @next 'step_done'  
     else if status=='failed'
       @post('failed',@last_exception.stack)
-      @next 'step_done'
+      if not @stop_on_any
+        @next 'step_done'
     else if status=='error'
       @post('failed',@last_exception.stack)
       @loc.step=1e10
-      @next 'step_done'
+      if not @stop_on_any
+        @next 'step_done'
     else
       @post('success')
       if @after_step_delay

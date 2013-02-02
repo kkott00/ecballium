@@ -29,7 +29,7 @@ ecballium.register_handlers [
   /^Комментарий "([^"]+)"/,
   (say)->
     @mouse.say(say)
-    @done()
+    @done('success')
  ]
 
  [/^(\w+) animation/,
@@ -43,16 +43,16 @@ ecballium.register_handlers [
   /^Выделить и добавить комментарий "([^"]+)"/,
   (comment)->
     #console.log 'highlight',item.is(':visible')
-    @run_on_target ()->
-      item=@ecb.found_item
-      old=@mouse.dump_css item,
-        'z-index':10001
-        'position':'relative'
-        'background-color':'white'
-      item_pos=item.first().offset()
-      d=@mouse.show_message item_pos.left,item_pos.top+item.outerHeight()+5,comment
-      d.done ()=>
-  	    item.css old
+    item=@ecb.found_item
+    old=@mouse.dump_css item,
+      'z-index':10001
+      'position':'relative'
+      'background-color':'white'
+    item_pos=item.first().offset()
+    d=@mouse.show_message item_pos.left,item_pos.top+item.outerHeight()+5,comment
+    d.done ()=>
+      item.css old
+      @done('success')
  ]
 
  [/^(Check|Fail) if (.+) (are|is|aren\'t|isn\'t) (.+)/,
@@ -99,7 +99,7 @@ ecballium.register_handlers [
    /^Ввести "([^"]+)"/,
    (text)->
       @ecb.found_item.val(text)
-      @done()
+      @done('success')
  ]
 
  [ /^Wait ([^"]+) seconds/,
@@ -109,7 +109,7 @@ ecballium.register_handlers [
      @done('success')
  ]
 
- [ /Go to (.+)/,
+ [ /^Go to (.+)/,
    (url) ->
      @console.log 'gotoh',url
      where = @A url
@@ -119,8 +119,14 @@ ecballium.register_handlers [
 
      @ecb.after_step_delay=2*1000
      @console.log 'gotoh',where
-     @window.location.href=where
+     @window.location.href = where
      
+ ]
+
+ [ /^Stop on any problem/,
+   ()->
+     @ecb.stop_on_any = true
+     @done('success')
  ]
 
 ]

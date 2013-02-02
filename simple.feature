@@ -1,6 +1,7 @@
 Feature: Demo
 
 Scenario: Press button
+  Stop on any problem
   Go to simple test page
   Find header with "Demo page"
   Highlight and say "Test is about to start"
