@@ -1,0 +1,5 @@
+#!/bin/bash
+OD=/c/projects/ecballium_gh/static/test/
+cp launcher.html ecballium.html $OD
+coffee -cw -o $OD .
+

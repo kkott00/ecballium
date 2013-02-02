@@ -111,12 +111,6 @@ class Ecballium
       @init 'modules_loaded'
   ###
   init: ()->
-    $('.log').draggable
-      handle:'.header'
-
-    #$(document).bind 'ecballium.run_on_target_done', (data,status)=>
-    #  @run_on_target_done(data,status)
-
     window.addEventListener "message"
       ,(e)=>    
         @run_on_target_done(null,e.data)
@@ -357,7 +351,7 @@ class Ecballium
     @logbuf=''
     #$.post('/test',{status:status,data:JSON.stringify data,null,1})
     console.log '===',status,' = ',data.step,data
-    msg_el="<b>#{status}</b>&nbsp;#{data.step}"
+    msg_el = "<b>#{status}</b>&nbsp;#{data.step}"
     if data.msg
       msg_el+="<div class='colapsible hidden'><code>#{data.msg}</code></div>"
     li=$("<dt>#{msg_el}</dt>")
