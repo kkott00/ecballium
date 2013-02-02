@@ -7,6 +7,15 @@
 
     <link rel="stylesheet" href="stylesheets/styles.css">
     <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <style>
+      .screenshot {
+        background-image:url('static/run.png');
+        background-size:400px 200px;
+        background-repeat:no-repeat;
+        width:400px;
+        height:200px;
+      }
+    </style>
     <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -53,7 +62,9 @@ Scenario: Press button
 </li>
 <li><p>Save you scenario to folder where <em>ecballium</em> is deployed (for example as <em>simple.feature</em>).</p></li>
 <li><p>Open URL <code>http://www.yoursite.com/test/launcher#simple</code><br><strong>Important</strong> For the first time your browser will ask you to allow popup from this site.<br>
-If you use steps only from <em>standart library</em> then it is enough.</p></li>
+If you use steps only from <em>standart library</em> then it is enough.</p>
+<div class="screenshot"></div>
+</li>
 <li>
 <p>If you want to do something special (something out of standard library scope).
 You may need to describe your own steps using Javascript or Coffeescript (e.g. file <em>simple.js</em>).</p>
