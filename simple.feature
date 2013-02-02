@@ -5,18 +5,18 @@ Scenario: Press button
   Go to simple test page
   Find header with "Demo page"
   Highlight and say "Test is about to start"
-  Find button "Big Button"
+  Find button with "Big Button"
   Say "Lets press this button"
   Click found item
   Say "Wow, It works"
-  Find caption "Big Button pressed"
+  Find caption with "Big Button pressed"
   Say "It looks like caption we want is here"
   Say "I want to do it again for all buttons here"
 
 Scenario: Press several same buttons
-  Find button "<button>"
+  Find button with "<button>"
   Click found item
-  Find caption "<out>"
+  Find caption with "<out>"
   Say "And again..."
   
   Examples:
@@ -26,18 +26,18 @@ Scenario: Press several same buttons
   | Button 3 | Button 3 pressed   |
 
 Scenario: Clean up
-  Find link "Reset"
+  Find link with "Reset"
   Click found item
 
 Scenario: Failed checks
   Say "But what happens if something is wrong?"
-  Find button "Big Button"
+  Find button with "Big Button"
   Click found item
   Check if text is "Big Button clicked"
-  Find button "Button 1"
+  Find button with "Button 1"
   Click found item
   Fail if text is "Button 1 clicked"
-  Find button "Button 2"
+  Find button with "Button 2"
   Click found item
 
 Scenario: Animation, guides and screncasts

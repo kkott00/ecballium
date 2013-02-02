@@ -21,15 +21,15 @@ ecballium.register_handlers [
  [/^Click found item/,
   /^Кликнуть на найденом/,
   ()->
-    @mouse.trueClick(@ecb.found_item)
-    @done()
+    @mouse.trueClick(@ecb.found_item).done ()=>
+      @done('success')
  ]
 
  [/^Say "([^"]+)"/,
   /^Комментарий "([^"]+)"/,
   (say)->
-    @mouse.say(say)
-    @done('success')
+    @mouse.say(say).done ()=>
+      @done('success')
  ]
 
  [/^(\w+) animation/,

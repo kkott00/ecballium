@@ -168,7 +168,7 @@ class EcballiumMouse
      'min-height': '50px'
      #'width': '50px'
      'height': '50px'
-     #'background-image':"url(#{@URL}/mouse.png)"
+     'background-image':"url(mouse.png)"
      'background-repeat': "no-repeat"
      padding:'10px 10px 10px 50px'
     $('body').append(@el)
@@ -180,13 +180,14 @@ class EcballiumMouse
     @overlay=$ '<div class="ecb_overlay">'
     @overlay.hide()
     @overlay.css
-      possition:'abosolute'
+      position:'absolute'
       top:0
       left:0
       width:2000
       height:2000
       'z-index':1000
-      'background-color':'black';
+      'background-color':'black'
+      'opacity':0.8;
     $('body').append(@overlay)
 
 
@@ -250,7 +251,7 @@ class EcballiumMouse
       obj.css i,v[i]
     out
 
-  show_message: (x,y,msg,color='rbga(0,0,0,0.5)')->
+  show_message: (x,y,msg,color = 'rbga(0,0,0,0.5)')->
     x?=200
     y?=200
     old=@dump_css @overlay,'background-color':color
