@@ -251,3 +251,12 @@ footer {
     color:#444;
   }
 }
+
+div.logo { 
+  background-image: url(../static/logo.jpg);
+  background-repeat: no-repeat;
+  background-size:cover;
+  width:300px;
+  height:200px;
+  margin-top:-50px;
+}
