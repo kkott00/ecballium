@@ -94,23 +94,36 @@
     }
 
     EcballiumBot.prototype.receiveMessage = function(e) {
-      var pars;
-      pars = JSON.parse(e.data);
       this.ecb = e.source.ecballium;
-      return this.run_handler(pars);
+      return this.run_handler(e.data);
     };
 
-    EcballiumBot.prototype.run_handler = function(pars) {
-      var script;
-      console.log('rpc', pars);
+    EcballiumBot.prototype.run_handler = function(step) {
+      var i, j, m, _i, _j, _len, _len1, _ref, _ref1;
+      console.log('rpc', step);
+      _ref = this.handlers;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        i = _ref[_i];
+        _ref1 = i.slice(0, -1);
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          j = _ref1[_j];
+          m = step.match(j);
+          if (m) {
+            break;
+          }
+        }
+        if (m) {
+          break;
+        }
+      }
+      /*    
+      if not m
+        @done('error',"not found step")
+        return
+      */
+
       try {
-        $('script[x-to-run]').remove();
-        script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.text = 'var fun_to_run=' + pars['fun'];
-        $('head')[0].appendChild(script);
-        $(script).attr('x-to-run', '');
-        return fun_to_run.apply(this, pars['args']);
+        return i.slice(-1)[0].apply(this, m.slice(1));
       } catch (e) {
         this.ecb.last_exception = e;
         if (this.ecb.skipScnOnError) {
@@ -174,7 +187,7 @@
       if (m) {
         return m[1];
       }
-      return out = al in this.ecb.aliases ? this.ecb.aliases[al] : al;
+      return out = al in this.aliases ? this.aliases[al] : al;
     };
 
     EcballiumBot.prototype.S = function(al) {
@@ -201,6 +214,15 @@
       if (!cond) {
         throw Error(msg);
       }
+    };
+
+    EcballiumBot.prototype.register_handlers = function(hs) {
+      console.log('reg hnld', hs);
+      return this.handlers = this.handlers.concat(hs);
+    };
+
+    EcballiumBot.prototype.register_aliases = function(as) {
+      return $.extend(this.aliases, as);
     };
 
     return EcballiumBot;

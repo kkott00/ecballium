@@ -5,10 +5,31 @@
   Link 'Reset' cleans up all added captions. 
 </div>
 <div>
+  <label>Text field</label>
   <input type="text" name="text"/>
 </div>
 <div>
-  <input type="text" name="text"/>
+  <label>Checbox field</label>
+  <input type="checkbox" name="checkbox"/>
+</div>
+<div>
+  <label>Radio buton</label>
+  <input type="radio" name="radio" value="option_1" checked> Option 1
+  <input type="radio" name="radio" value="option_2" checked> Option 2
+</div>
+<div>
+  <label>Select</label>
+  <select name="select" multiple="multiple">
+    <option>1</option>
+    <option>2</option>
+    <option>3</option>
+    <option>4</option>
+    <option>5</option>
+  </select>
+</div>
+
+<div>
+  <button>Submit</button>
 </div>
 
 <script type="text/javascript">
@@ -17,9 +38,6 @@ $(function(){
     console.log('click');
     var s=$(this);
     s.after('<p class="caption">'+s.text()+' pressed</p>');
-  })
-  $('a.reset').click(function(){
-    $('p.caption').remove()
   })
   
 });

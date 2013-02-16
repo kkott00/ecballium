@@ -1,6 +1,6 @@
-ecballium.register_handlers [
+ecballiumbot.register_handlers [
 ]
 
-ecballium.register_aliases
+ecballiumbot.register_aliases
   caption: 'p.caption'
   'simple test page':'../../demo.html#simple'

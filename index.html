@@ -51,7 +51,9 @@
 <ul>
 <li>To test if you web application works as expected.</li>
 <li>To make animated guide or screencast for your web application.</li>
-</ul><h1>How it works</h1>
+</ul>
+
+<h1>How it works</h1>
 
 <ol>
 <li>
@@ -75,15 +77,15 @@ If you use steps only from <em>standart library</em> then it is enough.</p></li>
 You may need to describe your own steps using Javascript or Coffeescript (e.g. file <em>simple.js</em>).</p>
 
 <pre>
-ecballium.register_handlers([
+ecballiumbot.register_handlers([
 [ /^Some special step (.*)/, 
   function(par) {
     do_something(par)
     this.done('success');
   }]);
-  
-ecballium.register_aliases({
-'special element link': '#special_element a',
+
+ecballiumbot.register_aliases({
+  'special element link': '#special_element a',
 });
 </pre>
 

@@ -63,10 +63,6 @@
 
     Ecballium.prototype.skipScnOnError = true;
 
-    Ecballium.prototype.aliases = {};
-
-    Ecballium.prototype.handlers = [];
-
     Ecballium.prototype.animate = false;
 
     Ecballium.prototype.DELAY = 5000;
@@ -268,21 +264,28 @@
       return curfile;
     };
 
+    Ecballium.prototype.inject_script = function(name) {
+      var fh, script;
+      fh = this.frame.find('head');
+      script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = "" + this.URL + "/" + name + ".js";
+      fh[0].appendChild(script);
+      return $(script).attr('x-injected', '');
+    };
+
     Ecballium.prototype.inject = function() {
-      var fh, scr, script,
+      var fh, scr,
         _this = this;
       this.frame = $(this.W.document);
       fh = this.frame.find('head');
       scr = fh.find('script[x-injected]');
       if (scr.length === 0) {
-        null;
-        script = document.createElement('script');
-        script.type = 'text/javascript';
-        script.src = "" + this.URL + "/ecballiumbot.js";
-        fh[0].appendChild(script);
-        $(script).attr('x-injected', '');
+        this.inject_script('ecballiumbot');
         wait(2010).done(function() {
-          return _this.W.ecballiumbot.ecb = _this;
+          _this.W.ecballiumbot.ecb = _this;
+          _this.inject_script('lib');
+          return _this.inject_script(_this.stack[0]);
         });
         return false;
       }
@@ -348,52 +351,11 @@
       return this.files[this.stack[0]].scenarios[this.loc.scn];
     };
 
-    Ecballium.prototype.ex_step = function(step) {
-      var i, j, m, _i, _j, _len, _len1, _ref, _ref1;
-      console.log('ex_step', this.loc2step().desc);
-      _ref = this.handlers;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        i = _ref[_i];
-        _ref1 = i.slice(0, -1);
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          j = _ref1[_j];
-          m = step.match(j);
-          if (m) {
-            break;
-          }
-        }
-        if (m) {
-          break;
-        }
-      }
-      if (!m) {
-        this.post('test error', "not found step");
-        return;
-      }
-      this.run_on_target(i.slice(-1)[0], m.slice(1));
-      /*
-      */
-
-      return null;
-    };
-
     Ecballium.prototype.run_step = function() {
-      var d, step;
+      var step;
       step = this.loc2step().desc;
       this.post('pre');
-      return d = this.ex_step(step);
-      /*
-          console.log 'run_step',d
-      
-          if d and ('then' of d)
-              #d.done ()=>
-              #  console.log 'd done'
-              d.done ()=>
-                @next 'step_done'
-          else
-            @next 'step_done'
-      */
-
+      return this.W.postMessage(step, "" + this.W.location.protocol + "//" + this.W.location.host);
     };
 
     Ecballium.prototype.log = function(msg, obj) {
@@ -471,22 +433,6 @@
       return li.find('.colapsible').click(function() {
         return $(this).toggleClass("hidden");
       });
-    };
-
-    Ecballium.prototype.register_handlers = function(hs) {
-      console.log('reg hnld', hs);
-      return this.handlers = this.handlers.concat(hs);
-    };
-
-    Ecballium.prototype.register_aliases = function(as) {
-      return $.extend(this.aliases, as);
-    };
-
-    Ecballium.prototype.run_on_target = function(fun, args) {
-      return this.W.postMessage(JSON.stringify({
-        'fun': fun.toString(),
-        'args': args
-      }), "" + this.W.location.protocol + "//" + this.W.location.host);
     };
 
     Ecballium.prototype.run_on_target_done = function(data, status) {
