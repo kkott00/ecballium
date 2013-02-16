@@ -70,23 +70,29 @@ class EcballiumBot
 
 
   receiveMessage:(e)->
-    pars=JSON.parse(e.data)
-    @ecb=e.source.ecballium
-    @run_handler(pars)
+    @ecb = e.source.ecballium
+    @run_handler(e.data)
 
-  run_handler: (pars)->
-    console.log 'rpc',pars
+  run_handler: (step)->
+    console.log 'rpc',step
+    
+    for i in @handlers
+      #console.log 'handler',i
+      for j in i.slice(0,-1)
+        #console.log 'handler_re',j,step.desc
+        m = step.match j
+        if m
+          break
+      if m
+        break
+    ###    
+    if not m
+      @done('error',"not found step")
+      return
+    ###
     
     try
-      #pars['fun'].apply @,pars['args']
-      $('script[x-to-run]').remove()
-      script= document.createElement('script')
-      script.type= 'text/javascript'
-      script.text='var fun_to_run='+pars['fun']
-      $('head')[0].appendChild(script)
-      $(script).attr('x-to-run','')
-      fun_to_run.apply @,pars['args']
-
+      i.slice(-1)[0].apply @,m[1..]
     catch e
       #console.log 'exception',e
       #d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
@@ -134,7 +140,7 @@ class EcballiumBot
     m=al.match /^"(.*)"$/
     if m
       return m[1]
-    out = if al of @ecb.aliases then @ecb.aliases[al] else al
+    out = if al of @aliases then @aliases[al] else al
 
   S: (al)->
     out = @A al
@@ -149,6 +155,13 @@ class EcballiumBot
     @skipScnOnError=true
     if not cond
       throw Error(msg)
+
+  register_handlers: (hs)->
+    console.log 'reg hnld',hs
+    @handlers=@handlers.concat hs
+
+  register_aliases: (as)->
+    $.extend @aliases,as
 
 
 

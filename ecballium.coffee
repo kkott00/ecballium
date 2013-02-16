@@ -46,8 +46,6 @@ class Ecballium
   state: 'init'
   logbuf:''
   skipScnOnError: true
-  aliases: {}
-  handlers:[]
   animate:false
   DELAY:5000
   REPEAT_TIME:5
@@ -200,20 +198,25 @@ class Ecballium
       current_step={desc:ti,line:n}
     curfile
   
+  inject_script: (name)->
+    fh=@frame.find('head')
+    script= document.createElement('script')
+    script.type= 'text/javascript'
+    script.src= "#{@URL}/#{name}.js"
+    fh[0].appendChild(script)
+    $(script).attr('x-injected','')
+
   inject: ()->
     @frame=$(@W.document)
     fh=@frame.find('head')
     scr=fh.find('script[x-injected]')
     if scr.length==0
-      null
-      #fh.append('<script x-injected="" src="static/test/ecballiumbot.js"></script>')
-      script= document.createElement('script')
-      script.type= 'text/javascript'
-      script.src= "#{@URL}/ecballiumbot.js"
-      fh[0].appendChild(script)
-      $(script).attr('x-injected','')
+      @inject_script('ecballiumbot')
       wait(2010).done ()=>
         @W.ecballiumbot.ecb=@
+        @inject_script 'lib'
+        @inject_script @stack[0] 
+
       return false
     return true
 
@@ -267,42 +270,11 @@ class Ecballium
   loc2scn:()->
     @files[@stack[0]].scenarios[@loc.scn]
 
-  ex_step:(step)->
-    console.log 'ex_step',@loc2step().desc
-    for i in @handlers
-      #console.log 'handler',i
-      for j in i.slice(0,-1)
-        #console.log 'handler_re',j,step.desc
-        m=step.match j
-        if m
-          break
-      if m
-        break
-    if not m
-      @post('test error',"not found step")
-      return
-    @run_on_target i.slice(-1)[0],m[1..]
-    ###
-    
-    ###
-    return null
-
   run_step:()->
     #console.log 'run_step'
     step=@loc2step().desc
     @post('pre')
-    d=@ex_step step
-    ###
-    console.log 'run_step',d
-
-    if d and ('then' of d)
-        #d.done ()=>
-        #  console.log 'd done'
-        d.done ()=>
-          @next 'step_done'
-    else
-      @next 'step_done'
-    ###
+    @W.postMessage step,"#{@W.location.protocol}//#{@W.location.host}"
 
   log: (msg,obj)->
     @logbuf+="#{new Date()} #{msg}\n"
@@ -360,19 +332,6 @@ class Ecballium
     li.find('.colapsible').click ()->
       $(this).toggleClass("hidden");
  
-
-  register_handlers: (hs)->
-    console.log 'reg hnld',hs
-    @handlers=@handlers.concat hs
-
-  register_aliases: (as)->
-    $.extend @aliases,as
-
-
-  run_on_target: (fun,args)->
-    #@W.$(@W.document).trigger 'ecballium.run_on_target',{'fun':fun,'ctx':@,'args':args}
-    #@W.ecballiumbot.ecb=@
-    @W.postMessage JSON.stringify({'fun':fun.toString(),'args':args}),"#{@W.location.protocol}//#{@W.location.host}"
 
   run_on_target_done: (data,status)->
     console.log 'run_on_target_done',status

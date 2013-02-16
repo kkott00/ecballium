@@ -1,4 +1,4 @@
-ecballium.register_handlers [
+ecballiumbot.register_handlers [
  [/^Find (.+) with (.*)/,
   /^Найти (.+) c (.*)/,
   /^Find (.+)/,
@@ -19,6 +19,7 @@ ecballium.register_handlers [
  ]
 
  [/^Click found item/,
+  /^Click it/,
   /^Кликнуть на найденом/,
   ()->
     @mouse.trueClick(@ecb.found_item).done ()=>
@@ -84,7 +85,7 @@ ecballium.register_handlers [
    /^Переключиться на (.*)/,
    (awhere)->
       where=@A awhere
-      if where=='found item'
+      if where in ['found item','it']
         @root=@found_item.first()
       else
         @root=$(document)
@@ -131,7 +132,7 @@ ecballium.register_handlers [
 
 ]
 
-ecballium.register_aliases
+ecballiumbot.register_aliases
   'has':'have'
   "doesn't have":"don't have"
   'имеет':'have'
