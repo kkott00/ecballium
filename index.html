@@ -1,38 +1,48 @@
-<!doctype html>
-<html>
+
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <title>Ecballium by kkott00</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Ecballium BDD framework">
+    <meta name="author" content="kkott00">
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
-    <style>
-      .screenshot {
-        background-image:url('static/run.png');
-        background-size:400px 200px;
-        background-repeat:no-repeat;
-        width:400px;
-        height:200px;
-      }
+    <!-- Le styles -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+
+    <style type="text/css">
+
     </style>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+      <script src="../assets/js/html5shiv.js"></script>
     <![endif]-->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-    
-    <script>
-      $(function(){
-        $('header').load('header.html')
-      })
-    </script>
+
+    <!-- Fav and touch icons -->
+    <link rel="apple-touch-icon-precomposed" sizes="144x144" href="../assets/ico/apple-touch-icon-144-precomposed.png">
+    <link rel="apple-touch-icon-precomposed" sizes="114x114" href="../assets/ico/apple-touch-icon-114-precomposed.png">
+      <link rel="apple-touch-icon-precomposed" sizes="72x72" href="../assets/ico/apple-touch-icon-72-precomposed.png">
+                    <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
+                                   <link rel="shortcut icon" href="../assets/ico/favicon.png">
+
+
   </head>
+
   <body>
-    <div class="wrapper">
-      <header>
-      </header>
-<section>
+
+    <div class="container-fluid">
+      <div class="row-fluid">
+        <div class="span3">
+          <div class="sidebar-nav">
+            <div  class="affix header">
+
+            </div>
+          </div><!--/.well -->
+        </div><!--/span-->
+        <div class="span9">
 
 <h1>Getting started</h1>
 
@@ -59,9 +69,7 @@ Scenario: Press button
 </li>
 <li><p>Save you scenario to folder where <em>ecballium</em> is deployed (for example as <em>simple.feature</em>).</p></li>
 <li><p>Open URL <code>http://www.yoursite.com/test/launcher#simple</code><br><strong>Important</strong> For the first time your browser will ask you to allow popup from this site.<br>
-If you use steps only from <em>standart library</em> then it is enough.</p>
-<div class="screenshot"></div>
-</li>
+If you use steps only from <em>standart library</em> then it is enough.</p></li>
 <li>
 <p>If you want to do something special (something out of standard library scope).
 You may need to describe your own steps using Javascript or Coffeescript (e.g. file <em>simple.js</em>).</p>
@@ -73,35 +81,43 @@ ecballium.register_handlers([
     do_something(par)
     this.done('success');
   }]);
+  
 ecballium.register_aliases({
 'special element link': '#special_element a',
 });
 </pre>
 
-<p>Another useful thing here are <em>aliases</em>. They allow to define CSS selectors for test sentences.</p>
+<p>Another useful things here are <em>aliases</em>. They allow to define CSS selectors for test sentences.</p>
 </li>
-</ol><h1>Why it is better</h1>
+</ol><hr><p>License: LGPL v.3</p>
+    </div>
+  </div>
+  </div>
 
-<h1>... than Jasmine</h1>
-
-<p>In Jasmine test code and test description are mixed but my main aim is to divide test description and test implementation.<br>
-Also Jasmine works inside application context but better test is when you are outside just like real user.</p>
-
-<h1>... than SeleniumHQ</h1>
-
-<p>You don't need create infrastructure for test launching just put test description and test implementation like ordinary static files. In distinction to this Ecballium's tests can be launched via special URL remotely or from shell script.<br>
-Selenium has limited access to application context in browser. It is difficult to launch JS code in application context to get object from browser context or to get event from application side. In addition to that test code is implemented using Python, Java or something else but application language mainly is JS.<br>
-Together with what selenium always has problem with browser drivers and it drives to additional bugfixing of testcode.
-Unlike Selenium Ecballium's test always run in browser context and distinction between browsers are easier than problem in browser driver.</p>
-
-<hr><p>License: LGPL v.3</p>
-</section>
-<footer>
-  <p>This project is maintained by <a href="https://github.com/kkott00">kkott00</a></p>
-  <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-</footer>
 </div>
-<script src="javascripts/scale.fix.js"></script>
-    
+
+        </div><!--/span-->
+      </div><!--/row-->
+
+      <hr>
+
+      <footer>
+        <p>&copy; Ecballium by kkott00 2013</p>
+      </footer>
+
+    </div><!--/.fluid-container-->
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script>
+      $(function(){
+        $('.header').load('header.html')
+      })
+    </script>
+
+
   </body>
 </html>
