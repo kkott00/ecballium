@@ -359,7 +359,8 @@ class Ecballium
       else
         @next 'step_done'
 
-
+  run_feature: (sc)->
+    @stack.unshift sc
 
 $ ->
   window.ecballium = new Ecballium()

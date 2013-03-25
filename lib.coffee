@@ -130,6 +130,13 @@ ecballiumbot.register_handlers [
      @done('success')
  ]
 
+[ /^Run feature (.*)/,
+   (sc)->
+     @ecb.run_feature @A sc
+     @done('success')
+ ]
+
+
 ]
 
 ecballiumbot.register_aliases
