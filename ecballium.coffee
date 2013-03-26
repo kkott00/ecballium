@@ -35,8 +35,7 @@ window.wait=(delay)->
 
 
 class Ecballium
-  files:{}
-  stack:[]
+  scripts:[]
   persist:{}
   loc:
     file:0
@@ -56,35 +55,38 @@ class Ecballium
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
   constructor:(opts)->
-    if window.ecballium
-      throw 'Double creation'
     $.extend @,opts
     @URL='/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
-    @hash = window.location.hash.slice(1);
-    @stack.push @hash
+    if not @hash
+      @hash = window.location.hash.slice(1);
     console.log 'URL',@URL
-    $(document).bind 'ecb_next', (e,state)=>
+    $(this).on 'ecb_next', (e,state)=>
       console.log 'ecb_next_trigger',state
-      e.stopPropagation()
-      @state_machine (state)
-    #load modules
+      e.stopImmediatePropagation()
+      @state_machine state
+
     path = window.location.pathname.replace 'launcher.html','stub.html'
     @W=opener;
-    @frame=$(@W.document)
+    @frame=$ @W.document
+
+    @scripts.push @hash
+    if @par
+      @scripts = @scripts.concat @par.scripts
+
+    @file = @get_file @hash
     wait(1000).done ()=> #debug delay
       @init()
 
   next: (state)->
     console.log 'next',state,@
     @state=state
-    $(document).trigger 'ecb_next',state
+    $(this).trigger 'ecb_next',state
 
   
   state_machine: (state,e)->
     console.log 'state machine',state
     switch state
       #wait for modules loading
-      when 'get_cur_step' then @get_cur_step() 
       when 'find_next_step' then @find_next_step()
       when 'step_ready' 
         if @inject() 
@@ -94,49 +96,42 @@ class Ecballium
           wait(@DELAY/2+10).done ()=>
             @next('step_ready')
       when 'step_done' then @find_next_step()
-      when 'all_done'
-        @post('all tests done','all tests done')
+      when 'feature_done'
+        if @par
+          @par.last_child = @par.child
+          @par.child = undefined
+          @par.next('step_done')
+        else
+          @post('all tests done','all tests done')
         #$.cookie('ecballium',null)
       else 
         throw("unknown state #{state}")      
-  ###  
-  load_modules: ()->
-    ds=[]
-    for i in ecb_config.modules
-      ds.push load "#{@URL}/#{i}"
-    $.when.apply(@,ds)
-    .done ()=>
-      @init 'modules_loaded'
-  ###
+
   init: ()->
-    window.addEventListener "message"
-      ,(e)=>    
-        @run_on_target_done(null,e.data)
-      ,false
+    if not @par
+      window.addEventListener "message"
+        ,(e)=>    
+          @run_on_target_done(null,e.data)
+        ,false
 
 
 
     #wait(200)
     #.done ()=>
     #  @next 'get_cur_step'
+    ###
     load('lib.js').done ()=>
       load(@hash+'.js').done ()=>
         @get_file(@hash).done ()=>
           @next 'step_ready'
-
-  
+    ###
+    @next 'step_ready'
  
   get_file: (file)->
-    d=$.Deferred()
-    if file not of @files
-      $.get("#{@URL}/#{file}.feature",null,null,'text')
-      .done (data)=>
-        @files[file] = @compile_gerkhin(data)
-        console.log 'compiled',@files[file]
-        d.resolve()
-    else
-      d.resolve()
-    d.promise()
+    $.get("#{@URL}/#{file}.feature",null,null,'text')
+    .done (data)=>
+      @file = @compile_gerkhin(data)
+      console.log 'compiled',@file
   
   compile_gerkhin: (data)->
     current_scenario=null;
@@ -199,12 +194,15 @@ class Ecballium
     curfile
   
   inject_script: (name)->
-    fh=@frame.find('head')
-    script= document.createElement('script')
-    script.type= 'text/javascript'
-    script.src= "#{@URL}/#{name}.js"
-    fh[0].appendChild(script)
-    $(script).attr('x-injected','')
+    try
+      fh=@frame.find('head')
+      script= document.createElement('script')
+      script.type= 'text/javascript'
+      script.src= "#{@URL}/#{name}.js"
+      fh[0].appendChild(script)
+      $(script).attr('x-injected','')
+    catch e
+      console.log("script #{name} not found")
 
   inject: ()->
     @frame=$(@W.document)
@@ -215,7 +213,8 @@ class Ecballium
       wait(2010).done ()=>
         @W.ecballiumbot.ecb=@
         @inject_script 'lib'
-        @inject_script @stack[0] 
+        for i in @scripts
+          @inject_script i
 
       return false
     return true
@@ -223,40 +222,28 @@ class Ecballium
 
 
   find_next_step:()->
-    @get_file(@stack[0])
-    .done ()=>
-      #check if there are another steps in scenario
-      scn=@loc2scn()
-      @loc.step+=1
-      if @loc.step>=scn.steps.length
-        @loc.step=0
-        if 'outline' of scn
-          @loc.outline+=1
-          if @loc.outline>=scn.outline.length
-            @loc.outline=0
-          else
-            @loc.scn-=1 #repeat scenario again
-        @loc.scn+=1
-        #check if there are another scenarios in file
-        file=@files[@stack[0]]
-        if @loc.scn>=file.scenarios.length
-          @loc.scn=0
-          @stack.shift()
-          #check if there are another files in config
-          if @stack.length==0
-            @next 'all_done'
-            return
-      @next 'step_ready'
+    #check if there are another steps in scenario
+    scn=@loc2scn()
+    @loc.step+=1
+    if @loc.step>=scn.steps.length
+      @loc.step=0
+      if 'outline' of scn
+        @loc.outline+=1
+        if @loc.outline>=scn.outline.length
+          @loc.outline=0
+        else
+          @loc.scn-=1 #repeat scenario again
+      @loc.scn+=1
+      #check if there are another scenarios in file
+      file=@file
+      if @loc.scn>=file.scenarios.length
+        @next 'feature_done'
+        return
+    @next 'step_ready'
 
   on_scenario_change: ()->
     @root=$(document)
 
-
-  get_cur_step:()->
-    @get_file(@stack[0])
-    .done ()=>
-      @next 'step_ready'
-  
   loc2step:()->
     scn=@loc2scn()
     tmp=$.extend {},scn.steps[@loc.step]
@@ -268,11 +255,11 @@ class Ecballium
     tmp
 
   loc2scn:()->
-    @files[@stack[0]].scenarios[@loc.scn]
+    @file.scenarios[@loc.scn]
 
   run_step:()->
-    #console.log 'run_step'
     step=@loc2step().desc
+    console.log 'run_step',step,@file,@loc.step
     @post('pre')
     @W.postMessage step,"#{@W.location.protocol}//#{@W.location.host}"
 
@@ -313,7 +300,7 @@ class Ecballium
       step=@loc2step()
       data=
         msg:msg
-        file: @stack[0]
+        file: @hash
         step: step.desc
         line: step.line
         log: @logbuf
@@ -335,6 +322,9 @@ class Ecballium
 
   run_on_target_done: (data,status)->
     console.log 'run_on_target_done',status
+    if @child
+      @child.run_on_target_done(data,status)
+      return
     
     if status=='redirected'
       @post('success')
@@ -349,6 +339,8 @@ class Ecballium
       @loc.step=1e10
       if not @stop_on_any
         @next 'step_done'
+    else if status=='run_feature'
+      @run_feature @pending_feature
     else
       @post('success')
       if @after_step_delay
@@ -359,8 +351,10 @@ class Ecballium
       else
         @next 'step_done'
 
-  run_feature: (sc)->
-    @stack.unshift sc
+  run_feature: (f)->
+    @child = new Ecballium 
+      'par':this
+      'hash':f
 
 $ ->
   window.ecballium = new Ecballium()

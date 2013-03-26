@@ -131,9 +131,9 @@ ecballiumbot.register_handlers [
  ]
 
 [ /^Run feature (.*)/,
-   (sc)->
-     @ecb.run_feature @A sc
-     @done('success')
+   (f)->
+     @ecb.pending_feature = f
+     @done('run_feature')
  ]
 
 
