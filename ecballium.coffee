@@ -35,13 +35,7 @@ window.wait=(delay)->
 
 
 class Ecballium
-  scripts:[]
-  persist:{}
-  loc:
-    file:0
-    scn:0
-    step:0
-    outline: 0
+  
   state: 'init'
   logbuf:''
   skipScnOnError: true
@@ -56,6 +50,15 @@ class Ecballium
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
   constructor:(opts)->
     $.extend @,opts
+    @scripts = []
+    @loc = 
+      file:0
+      scn:0
+      step:0
+      outline: 0
+
+    console.log '****   new ecb',@loc.step,@scripts
+
     @URL='/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
     if not @hash
       @hash = window.location.hash.slice(1);
@@ -78,7 +81,7 @@ class Ecballium
       @init()
 
   next: (state)->
-    console.log 'next',state,@
+    console.log 'next',state
     @state=state
     $(this).trigger 'ecb_next',state
 
@@ -289,7 +292,6 @@ class Ecballium
       data=
         msg:msg
         log: @logbuf
-        id: @persist.id
         navigator:@navigator
     else if status=='pre'
       step=@loc2step()
@@ -304,7 +306,6 @@ class Ecballium
         step: step.desc
         line: step.line
         log: @logbuf
-        id: @persist.id
         navigator:@navigator
 
     @logbuf=''
@@ -353,7 +354,7 @@ class Ecballium
 
   run_feature: (f)->
     @child = new Ecballium 
-      'par':this
+      'par':@
       'hash':f
 
 $ ->
