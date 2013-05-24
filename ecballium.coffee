@@ -76,7 +76,11 @@ class Ecballium
     if @par
       @scripts = @scripts.concat @par.scripts
 
-    @file = @get_file @hash
+    if @console
+      @file = @compile_gerkhin @console.text
+    else
+      @file = @get_file @hash
+
     wait(1000).done ()=> #debug delay
       @init()
 
@@ -360,3 +364,9 @@ class Ecballium
 
 $ ->
   window.ecballium = new Ecballium()
+  $('button.run_script').on 'click',()->
+    ecballium.child =  new Ecballium
+      'par':@
+      'console':
+        'text':$('textarea.editor').text()
+
