@@ -96,13 +96,13 @@ class EcballiumBot
     catch e
       #console.log 'exception',e
       #d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
-      @ecb.last_exception=e
+      @ecb.last_exception = e
       #@W.close()
       if @ecb.skipScnOnError
         @done('failed')
       else
         @done('error')
-      throw e
+      #throw e
       
  
 

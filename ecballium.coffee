@@ -251,8 +251,8 @@ class Ecballium
     scn=@loc2scn()
     tmp=$.extend {},scn.steps[@loc.step]
     if 'outline' of scn
-      outline=scn.outline[@loc.outline]
-      tmp.desc=tmp.desc.replace /(<[^<>]+>)/,(v)->
+      outline = scn.outline[@loc.outline]
+      tmp.desc = tmp.desc.replace /(<[^<>]+>)/,(v)->
         #console.log 'outline replace',outline,v.slice(1,-1)
         outline[v.slice(1,-1)]
     tmp
@@ -332,15 +332,16 @@ class Ecballium
       wait(@DELAY/2).done ()=>  #wait until page reloaded
         @next 'step_done'  
     else if status=='failed'
-      @post('failed',@last_exception.stack)
+      @post('failed',ecballium.last_exception.stack)
       if not @stop_on_any
         @next 'step_done'
     else if status=='error'
-      @post('failed',@last_exception.stack)
+      @post('failed',ecballium.last_exception.stack)
       @loc.step=1e10
       if not @stop_on_any
         @next 'step_done'
     else if status=='run_feature'
+      @post('success')
       @run_feature @pending_feature
     else
       @post('success')

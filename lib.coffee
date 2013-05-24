@@ -106,7 +106,7 @@ ecballiumbot.register_handlers [
  [ /^Wait ([^"]+) seconds/,
    /^Подождать ([^"]+)/,
    (sec)->
-     @ecb.after_step_delay=sec*1000
+     @ecb.after_step_delay = sec*1000
      @done('success')
  ]
 
@@ -118,10 +118,15 @@ ecballiumbot.register_handlers [
      @onredirect=()=>
        null
 
-     @ecb.after_step_delay=2*1000
+     @ecb.after_step_delay = 2*1000
      @console.log 'gotoh',where
-     @window.location.href = where
-     
+     new_link = @ecb.URL + '/' + where
+     @window.location.assign( new_link )
+     setTimeout ()=>
+        @window.location.reload()
+      ,
+        300
+     null
  ]
 
  [ /^Stop on any problem/,
@@ -134,7 +139,18 @@ ecballiumbot.register_handlers [
    (f)->
      @ecb.pending_feature = f
      @done('run_feature')
+]
+
+[ /^Scroll to it/,
+   ()->
+     d = $('html, body').animate({scrollTop: $(@ecb.found_item).offset().top}, 500);
+     d.complete ()=>
+       @done('success')
  ]
+
+[
+]
+
 
 
 ]
