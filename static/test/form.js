@@ -4,7 +4,7 @@
 
   ecballiumbot.register_aliases({
     caption: 'p.caption',
-    'simple test page': '../../demo.html#simple'
+    'form test page': '../../demo.html#form'
   });
 
 }).call(this);

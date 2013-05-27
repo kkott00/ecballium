@@ -2,6 +2,7 @@ Feature: Repeated actions
 
 Scenario: Open page
   Go to simple test page
+  Say "I want to do it again for all buttons here"
 
 Scenario: Press several same buttons
   Find button with "<button>"

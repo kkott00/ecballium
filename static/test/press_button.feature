@@ -4,7 +4,6 @@ Scenario: Open page
   Go to simple test page
 
 Scenario: Press button
-  Go to simple test page
   Find header with "Demo page"
   Highlight and say "Test is about to start"
   Find button with "Big Button"
@@ -13,5 +12,4 @@ Scenario: Press button
   Say "Wow, It works"
   Find caption with "Big Button pressed"
   Say "It looks like caption we want is here"
-  Say "I want to do it again for all buttons here"
 
