@@ -62,6 +62,7 @@ class Ecballium
     @URL='/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
     if not @hash
       @hash = window.location.hash.slice(1);
+    @hash ?= 'console'
     console.log 'URL',@URL
     $(this).on 'ecb_next', (e,state)=>
       console.log 'ecb_next_trigger',state
@@ -137,6 +138,8 @@ class Ecballium
   get_file: (file)->
     $.get("#{@URL}/#{file}.feature",null,null,'text')
     .done (data)=>
+      if not @par
+        $('textarea.editor').val(data)
       @file = @compile_gerkhin(data)
       console.log 'compiled',@file
   
@@ -150,7 +153,7 @@ class Ecballium
       ti=i.trim()
       if gather_string
         if ti=='"""'
-          gather_string=false
+          gather_string = false
         else
           current_step[data]+="#{i}\n"
         continue
@@ -317,7 +320,7 @@ class Ecballium
     console.log '===',status,' = ',data.step,data
     msg_el = "<b>#{status}</b>&nbsp;#{data.step}"
     if data.msg
-      msg_el+="<div class='colapsible hidden'><code>#{data.msg}</code></div>"
+      msg_el+="<div class='colapsible hidden'><pre>#{data.msg}</pre></div>"
     li=$("<dt>#{msg_el}</dt>")
     $('.log dl dt.pre_msg').remove()
     $('.log dl').append(li)
@@ -365,8 +368,9 @@ class Ecballium
 $ ->
   window.ecballium = new Ecballium()
   $('button.run_script').on 'click',()->
+    console.log $('textarea.editor').val()
     ecballium.child =  new Ecballium
-      'par':@
+      'par':ecballium
       'console':
-        'text':$('textarea.editor').text()
+        'text':$('textarea.editor').val()
 
