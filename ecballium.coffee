@@ -62,7 +62,8 @@ class Ecballium
     @URL='/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
     if not @hash
       @hash = window.location.hash.slice(1);
-    @hash ?= 'console'
+    if @hash == ''
+      @hash = 'console'
     console.log 'URL',@URL
     $(this).on 'ecb_next', (e,state)=>
       console.log 'ecb_next_trigger',state
