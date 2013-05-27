@@ -61,6 +61,8 @@
 
         if (sel === 'text') {
           res = this.ecb.found_item.text() === val;
+        } else if (sel === 'value') {
+          res = this.ecb.found_item.value() === val;
         } else {
           res = this.ecb.found_item.css(this.A(el)) === val;
         }

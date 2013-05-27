@@ -102,7 +102,7 @@
     };
 
     EcballiumBot.prototype.run_handler = function(step) {
-      var e, i, j, m, _i, _j, _len, _len1, _ref, _ref1;
+      var d, e, i, j, m, _i, _j, _len, _len1, _ref, _ref1;
 
       console.log('rpc', step);
       _ref = this.handlers;
@@ -130,6 +130,8 @@
         return i.slice(-1)[0].apply(this, m.slice(1));
       } catch (_error) {
         e = _error;
+        console.log('exception', e);
+        d = this.mouse.show_message(100, 100, "<pre>" + e.stack + "</pre>", 'rgba(255,0,0,0.5)');
         this.ecb.last_exception = e;
         if (this.ecb.skipScnOnError) {
           return this.done('failed');
