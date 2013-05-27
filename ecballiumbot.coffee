@@ -94,8 +94,8 @@ class EcballiumBot
     try
       i.slice(-1)[0].apply @,m[1..]
     catch e
-      #console.log 'exception',e
-      #d=@show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
+      console.log 'exception',e
+      d=@mouse.show_message(100,100,"<pre>#{e.stack}</pre>",'rgba(255,0,0,0.5)')
       @ecb.last_exception = e
       #@W.close()
       if @ecb.skipScnOnError

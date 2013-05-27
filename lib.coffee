@@ -61,6 +61,8 @@ ecballiumbot.register_handlers [
   (action,sel,cond,val)->
    if sel=='text'
      res = (@ecb.found_item.text()==val)
+   else if sel=='value'
+     res = (@ecb.found_item.value()==val)
    else
      res = (@ecb.found_item.css(@A el)==val)
    if (@A cond)=="isn't"
