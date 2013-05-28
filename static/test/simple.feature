@@ -1,5 +1,10 @@
 Feature: Demo
 
+Scenario: Hello
+  Go to simple test page
+  Find header with "Demo page"
+  Highlight and say "Test is about to start"
+
 Scenario: Press button
   Run feature press_button
 

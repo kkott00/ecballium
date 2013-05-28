@@ -138,6 +138,11 @@
         return this.done('run_feature');
       }
     ], [
+      /^Load library (.*)/, function(lib) {
+        this.ecb.scripts.push(lib);
+        return this.done('load_library');
+      }
+    ], [
       /^Scroll to it/, function() {
         var d,
           _this = this;

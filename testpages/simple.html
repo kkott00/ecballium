@@ -19,9 +19,14 @@
 <div>
   <button>Button 3</button>
 </div>
-
+<table>
+</table>
 <script type="text/javascript">
 $(function(){
+  for (var i = 0; i < 50; i++){
+    $('table').append('<tr><td>' + i + '</td></tr>')
+  }
+
   $('button').click(function(){
     console.log('click');
     var s=$(this);
@@ -30,7 +35,7 @@ $(function(){
   $('a.reset').click(function(){
     $('p.caption').remove()
   })
-  
+
 });
 
 </script>

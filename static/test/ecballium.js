@@ -472,6 +472,12 @@
       } else if (status === 'run_feature') {
         this.post('success');
         return this.run_feature(this.pending_feature);
+      } else if (status === 'load_library') {
+        this.post('success');
+        this.inject_script(this.scripts.slice(-1)[0]);
+        return wait(this.DELAY / 2).done(function() {
+          return _this.next('step_done');
+        });
       } else {
         this.post('success');
         if (this.after_step_delay) {
