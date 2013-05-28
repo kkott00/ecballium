@@ -19,12 +19,21 @@
         //if (hash!="")
         //  $('code').load(hash+'.feature')
         //code=$.get(hash+'.feature')
-        open('ecballium.html#'+hash,'AUT', "width=800,height=768,top=0,left=800" );
+        if (hash.length != 0)
+          open('ecballium.html#'+hash,'AUT', "width=800,height=768,top=0,left=800" );
+        $('button.load_feature').on('click',function(){
+          open('ecballium.html#'+$('#feature_name').val(),'AUT', "width=800,height=768,top=0,left=800" );
+        })
 
       })
     </script>
   </head>
   <body>
-
+   <h2>This is empty page</h2>
+   <p>To launch test script use URL: [host]/path/to/static/test/launcher.html#[feature name]</p>
+   <p>Load test page here using "Go to [URL]" BDD command</p>
+   <label for="feature_name">Feature name</label>
+   <input type="text" id="feature_name"/>
+   <button class="load_feature">Load</button>
   </body>
 </html>

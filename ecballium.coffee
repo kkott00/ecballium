@@ -217,8 +217,8 @@ class Ecballium
 
   inject: ()->
     @frame=$(@W.document)
-    fh=@frame.find('head')
-    scr=fh.find('script[x-injected]')
+    fh = @frame.find('head')
+    scr = fh.find('script[x-injected]')
     if scr.length==0
       @inject_script('ecballiumbot')
       wait(2010).done ()=>
@@ -345,19 +345,24 @@ class Ecballium
         @next 'step_done'
     else if status=='error'
       @post('failed',ecballium.last_exception.stack)
-      @loc.step=1e10
+      @loc.step = 1e10
       if not @stop_on_any
         @next 'step_done'
     else if status=='run_feature'
       @post('success')
       @run_feature @pending_feature
+    else if status=='load_library'
+      @post('success')
+      @inject_script @scripts.slice(-1)[0]
+      wait(@DELAY/2).done ()=>
+        @next 'step_done'
     else
       @post('success')
       if @after_step_delay
         debugger;
         wait(@after_step_delay).done ()=>
           @next 'step_done'
-        @after_step_delay=null
+        @after_step_delay = null
       else
         @next 'step_done'
 

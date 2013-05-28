@@ -142,6 +142,11 @@ ecballiumbot.register_handlers [
      @ecb.pending_feature = f
      @done('run_feature')
 ]
+[  /^Load library (.*)/,
+   (lib)->
+     @ecb.scripts.push lib
+     @done('load_library')
+]
 
 [ /^Scroll to it/,
    ()->
