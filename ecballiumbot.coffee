@@ -211,6 +211,10 @@ class EcballiumMouse
     @x=x-25
     @y=y-25
     @el.animate {top:@y,left:@x},100,()=>d.resolve()
+    
+    d.done ()=>
+      if not @isElementInViewport(@el)
+        @scrollTo @el
     d
   movetoobj:(obj)->
     toff = obj.offset()
@@ -287,6 +291,23 @@ class EcballiumMouse
       @overlay.hide()
       @overlay.css old
       caption.remove()
+   
+  scrollTo: (ael) ->
+     el = $(ael)[0]
+     d = $('html, body').animate({scrollTop: $(el).offset().top}, 500);
+     d
+
+
+  isElementInViewport: (ael) ->
+    el = $(ael)[0]
+    rect = el.getBoundingClientRect();
+
+    return (
+        rect.top >= 0 &&
+        rect.left >= 0 &&
+        rect.bottom <= (window.innerHeight || document. documentElement.clientHeight) && #or $(window).height() */
+        rect.right <= (window.innerWidth || document. documentElement.clientWidth) #or $(window).width() */
+        );
 
 
 $ ()->

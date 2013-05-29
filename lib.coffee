@@ -150,10 +150,10 @@ ecballiumbot.register_handlers [
 
 [ /^Scroll to it/,
    ()->
-     d = $('html, body').animate({scrollTop: $(@ecb.found_item).offset().top}, 500);
-     d.complete ()=>
+    d = @.mouse.scrollTo @ecb.found_item
+    d.complete ()=>
        @done('success')
- ]
+]
 
 [
 ]
