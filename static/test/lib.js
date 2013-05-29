@@ -147,9 +147,7 @@
         var d,
           _this = this;
 
-        d = $('html, body').animate({
-          scrollTop: $(this.ecb.found_item).offset().top
-        }, 500);
+        d = this.mouse.scrollTo(this.ecb.found_item);
         return d.complete(function() {
           return _this.done('success');
         });

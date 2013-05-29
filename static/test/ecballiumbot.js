@@ -296,6 +296,11 @@
       }, 100, function() {
         return d.resolve();
       });
+      d.done(function() {
+        if (!_this.isElementInViewport(_this.el)) {
+          return _this.scrollTo(_this.el);
+        }
+      });
       return d;
     };
 
@@ -403,6 +408,24 @@
         _this.overlay.css(old);
         return caption.remove();
       });
+    };
+
+    EcballiumMouse.prototype.scrollTo = function(ael) {
+      var d, el;
+
+      el = $(ael)[0];
+      d = $('html, body').animate({
+        scrollTop: $(el).offset().top
+      }, 500);
+      return d;
+    };
+
+    EcballiumMouse.prototype.isElementInViewport = function(ael) {
+      var el, rect;
+
+      el = $(ael)[0];
+      rect = el.getBoundingClientRect();
+      return rect.top >= 0 && rect.left >= 0 && rect.bottom <= (window.innerHeight || document.documentElement.clientHeight) && rect.right <= (window.innerWidth || document.documentElement.clientWidth);
     };
 
     return EcballiumMouse;
