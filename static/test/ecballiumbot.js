@@ -97,7 +97,6 @@
     }
 
     EcballiumBot.prototype.receiveMessage = function(e) {
-      this.ecb = e.source.ecballium;
       return this.run_handler(e.data);
     };
 

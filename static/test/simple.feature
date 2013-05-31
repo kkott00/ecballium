@@ -11,6 +11,9 @@ Scenario: Press button
 Scenario: Press several same buttons
   Run feature repeated_actions
 
+Scenario: Form filling
+  Run feature form
+
 Scenario: Failed checks
   Run feature checks
 

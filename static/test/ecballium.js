@@ -78,6 +78,10 @@
         outline: 0
       };
       console.log('****   new ecb', this.loc.step, this.scripts);
+      if (!window.dbg_ecbs) {
+        window.dbg_ecbs = [];
+      }
+      window.dbg_ecbs.push(this);
       this.URL = '/' + (window.location.pathname.split('/').slice(1, -1)).join('/');
       if (!this.hash) {
         this.hash = window.location.hash.slice(1);
@@ -115,7 +119,8 @@
     };
 
     Ecballium.prototype.state_machine = function(state, e) {
-      var _this = this;
+      var scn,
+        _this = this;
 
       console.log('state machine', state);
       switch (state) {
@@ -123,6 +128,10 @@
           return this.find_next_step();
         case 'step_ready':
           if (this.inject()) {
+            if (this.loc.step === 0) {
+              scn = this.loc2scn();
+              this.post('msg', scn.name);
+            }
             return this.run_step();
           } else {
             return wait(this.DELAY / 2 + 10).done(function() {
@@ -135,10 +144,11 @@
         case 'feature_done':
           if (this.par) {
             this.par.last_child = this.par.child;
-            this.par.child = void 0;
+            delete this.par.child;
+            this.W.ecballiumbot.ecb = this.par;
             return this.par.next('step_done');
           } else {
-            return this.post('all tests done', 'all tests done');
+            return this.post('msg', 'all tests done');
           }
           break;
         default:
@@ -361,7 +371,8 @@
     Ecballium.prototype.run_step = function() {
       var step;
 
-      step = this.loc2step().desc;
+      this.current_step = this.loc2step();
+      step = this.current_step.desc;
       console.log('run_step', step, this.file, this.loc.step);
       this.post('pre');
       return this.W.postMessage(step, "" + this.W.location.protocol + "//" + this.W.location.host);
@@ -409,9 +420,9 @@
       if (msg == null) {
         msg = '';
       }
-      if (status === 'all tests done') {
+      if (status === 'msg') {
         data = {
-          msg: msg,
+          step: msg,
           log: this.logbuf,
           navigator: this.navigator
         };
@@ -433,11 +444,11 @@
       }
       this.logbuf = '';
       console.log('===', status, ' = ', data.step, data);
-      msg_el = "<b>" + status + "</b>&nbsp;" + data.step;
+      msg_el = "" + status + "&nbsp;" + data.step;
       if (data.msg) {
         msg_el += "<div class='colapsible hidden'><pre>" + data.msg + "</pre></div>";
       }
-      li = $("<dt>" + msg_el + "</dt>");
+      li = $("<dt class='status_" + status + "'>" + msg_el + "</dt>");
       $('.log dl dt.pre_msg').remove();
       $('.log dl').append(li);
       return li.find('.colapsible').click(function() {
@@ -459,12 +470,12 @@
           return _this.next('step_done');
         });
       } else if (status === 'failed') {
-        this.post('failed', ecballium.last_exception.stack);
+        this.post('failed', this.last_exception.stack);
         if (!this.stop_on_any) {
           return this.next('step_done');
         }
       } else if (status === 'error') {
-        this.post('failed', ecballium.last_exception.stack);
+        this.post('failed', this.last_exception.stack);
         this.loc.step = 1e10;
         if (!this.stop_on_any) {
           return this.next('step_done');

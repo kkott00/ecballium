@@ -1,6 +1,7 @@
 Feature: Checks
 
 Scenario: Open page
+  Load library simple
   Go to simple test page
 
 
