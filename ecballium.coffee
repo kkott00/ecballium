@@ -58,6 +58,10 @@ class Ecballium
       outline: 0
 
     console.log '****   new ecb',@loc.step,@scripts
+    if not window.dbg_ecbs
+      window.dbg_ecbs = []
+    window.dbg_ecbs.push(@)
+
 
     @URL='/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
     if not @hash
@@ -222,7 +226,7 @@ class Ecballium
     if scr.length==0
       @inject_script('ecballiumbot')
       wait(2010).done ()=>
-        @W.ecballiumbot.ecb=@
+        @W.ecballiumbot.ecb = @
         @inject_script 'lib'
         for i in @scripts
           @inject_script i
@@ -269,7 +273,8 @@ class Ecballium
     @file.scenarios[@loc.scn]
 
   run_step:()->
-    step=@loc2step().desc
+    @current_step = @loc2step()
+    step = @current_step.desc
     console.log 'run_step',step,@file,@loc.step
     @post('pre')
     @W.postMessage step,"#{@W.location.protocol}//#{@W.location.host}"
@@ -319,10 +324,10 @@ class Ecballium
     @logbuf=''
     #$.post('/test',{status:status,data:JSON.stringify data,null,1})
     console.log '===',status,' = ',data.step,data
-    msg_el = "<b>#{status}</b>&nbsp;#{data.step}"
+    msg_el = "#{status}&nbsp;#{data.step}"
     if data.msg
       msg_el+="<div class='colapsible hidden'><pre>#{data.msg}</pre></div>"
-    li=$("<dt>#{msg_el}</dt>")
+    li=$("<dt class='status_#{status}'>#{msg_el}</dt>")
     $('.log dl dt.pre_msg').remove()
     $('.log dl').append(li)
     li.find('.colapsible').click ()->

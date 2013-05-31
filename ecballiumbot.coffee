@@ -70,7 +70,7 @@ class EcballiumBot
 
 
   receiveMessage:(e)->
-    @ecb = e.source.ecballium
+    #@ecb = e.source.ecballium
     @run_handler(e.data)
 
   run_handler: (step)->

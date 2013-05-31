@@ -155,7 +155,23 @@ ecballiumbot.register_handlers [
        @done('success')
 ]
 
-[
+[ /^Fill form/,
+  ()->
+    for i in @ecb.current_step.data
+      inp = @ecb.found_item.find("[name=#{i[0]}]")
+      if inp.attr('type') == 'radio'
+        opts = i[1].split(',,')
+        for j in inp
+          j.checked = if $(j).attr('value') in opts then true else false;
+      else if inp.attr('type') == 'checkbox'
+        inp[0].checked = if i[1] in ['checked','check'] then true else false;
+      else if inp.is 'select'
+        inp.find("option").filter( () -> 
+          return $(@).val() in opts 
+        ).prop('selected', true); 
+      else 
+        inp.val(i[1])
+    @done('success')
 ]
 
 
