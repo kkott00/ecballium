@@ -103,6 +103,9 @@ class Ecballium
       when 'find_next_step' then @find_next_step()
       when 'step_ready' 
         if @inject() 
+          if @loc.step == 0 #handle scenario begin
+            scn = @loc2scn()
+            @post 'msg',scn.name
           @run_step()
         else
           # wait until injection comleted
@@ -116,7 +119,7 @@ class Ecballium
           @W.ecballiumbot.ecb = @par
           @par.next('step_done')
         else
-          @post('all tests done','all tests done')
+          @post('msg','all tests done')
         #$.cookie('ecballium',null)
       else 
         throw("unknown state #{state}")      
@@ -150,10 +153,10 @@ class Ecballium
       console.log 'compiled',@file
   
   compile_gerkhin: (data)->
-    current_scenario=null;
-    n=0;
-    gather_string=false;
-    curfile={'scenarios':[]}
+    current_scenario = null;
+    n = 0;
+    gather_string = false;
+    curfile = {'scenarios':[]}
     for i in data.split('\n').concat(['end step'])
       n+=1;
       ti=i.trim()
@@ -239,7 +242,7 @@ class Ecballium
 
   find_next_step:()->
     #check if there are another steps in scenario
-    scn=@loc2scn()
+    scn = @loc2scn()
     @loc.step+=1
     if @loc.step>=scn.steps.length
       @loc.step=0
@@ -302,12 +305,12 @@ class Ecballium
     out
   
   post: (status,msg='')->
-    if status=='all tests done'
+    if status=='msg'
       data=
-        msg:msg
+        step: msg
         log: @logbuf
         navigator:@navigator
-    else if status=='pre'
+    else if status == 'pre'
       step=@loc2step()
       li=$("<dt class='pre_msg'>#{step.desc}</dt>")
       $('.log dl').append(li)
