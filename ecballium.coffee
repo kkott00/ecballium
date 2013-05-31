@@ -112,7 +112,8 @@ class Ecballium
       when 'feature_done'
         if @par
           @par.last_child = @par.child
-          @par.child = undefined
+          delete @par.child 
+          @W.ecballiumbot.ecb = @par
           @par.next('step_done')
         else
           @post('all tests done','all tests done')
@@ -345,11 +346,11 @@ class Ecballium
       wait(@DELAY/2).done ()=>  #wait until page reloaded
         @next 'step_done'  
     else if status=='failed'
-      @post('failed',ecballium.last_exception.stack)
+      @post('failed',@last_exception.stack)
       if not @stop_on_any
         @next 'step_done'
     else if status=='error'
-      @post('failed',ecballium.last_exception.stack)
+      @post('failed',@last_exception.stack)
       @loc.step = 1e10
       if not @stop_on_any
         @next 'step_done'

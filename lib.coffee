@@ -102,6 +102,7 @@ ecballiumbot.register_handlers [
    /^Ввести "([^"]+)"/,
    (text)->
       @ecb.found_item.val(text)
+      @ecb.after_step_delay = 1000
       @done('success')
  ]
 
@@ -166,7 +167,9 @@ ecballiumbot.register_handlers [
       else if inp.attr('type') == 'checkbox'
         inp[0].checked = if i[1] in ['checked','check'] then true else false;
       else if inp.is 'select'
+        opts = i[1].split(',,')
         inp.find("option").filter( () -> 
+          #console.log 'filter',$(@).val(),opts
           return $(@).val() in opts 
         ).prop('selected', true); 
       else 
@@ -174,6 +177,24 @@ ecballiumbot.register_handlers [
     @done('success')
 ]
 
+[ /^Set select options/,
+  ()->
+    opts = (i[0] for i in @ecb.current_step.data)
+    console.log 'select',opts
+    for j in @ecb.found_item.find('option')
+      j.selected = $(j).attr('value') in opts
+    @ecb.after_step_delay = 1000
+    @done('success')
+]
+
+
+[ /^Set radio to (.+)/,
+  (opt)->
+    for j in @ecb.found_item
+      j.checked = if $(j).attr('value') == opt then true else false;
+    @ecb.after_step_delay = 1000
+    @done('success')
+]
 
 
 ]
@@ -206,3 +227,6 @@ ecballiumbot.register_aliases
   'image':'img'
 
   'фрейм':'frame'
+  'text input':'input[type=text]'
+  'checkbox':'input[type=checkbox]'
+  'radio':'input[type=radio]'
