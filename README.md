@@ -1,9 +1,11 @@
-Ecballium
+# Ecballium
 
 [Project webpage](http://kkott00.github.com/ecballium)  
 [Use wiki](https://github.com/kkott00/ecballium/wiki)
 
-How to install
+# How to install
+
+Build it
 
 <pre>
 cd ecballium
