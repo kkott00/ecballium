@@ -4,7 +4,7 @@
 
   ecballiumbot.register_handlers([
     [
-      /^Find (.+) with (.*)/, /^Найти (.+) c (.*)/, /^Find (.+)/, function(type, par) {
+      /^Find (.+) with (.*)/, /^Найти (.+) c текстом (.*)/, /^Find (.+)/, function(type, par) {
         type = this.A(type);
         par = this.A(par);
         console.log('find', type, par);
@@ -14,7 +14,6 @@
           this.ecb.found_item = this.ecb.found_item.filter(":contains(" + par + ")");
         }
         console.log('sel', this.ecb.found_item);
-        this.assert(this.ecb.found_item.length, 'Not found item');
         this.mouse.movetoobj(this.ecb.found_item);
         return this.done();
       }
@@ -58,21 +57,29 @@
         });
       }
     ], [
-      /^(Check|Stop) if (.+) (are|is|aren\'t|isn\'t) (.+)/, /^(Проверить|Остановиться) если (.+) (-|не) (.+)/, function(action, sel, cond, val) {
-        var assertion, res;
+      /^(Check|Stop) if (.+) (are|is|aren\'t|isn\'t) (.+)/, /^(Остановиться) если (.+) (-|не) (.+)/, /^(Проверить), что (.+) (-|не) (.+)/, function(action, sel, cond, val) {
+        var aaction, acond, asel, assertion, aval, res;
 
+        asel = this.A(sel);
+        aval = this.A(val);
+        aaction = this.A(action);
+        acond = this.A(cond);
         if (sel === 'text') {
-          res = this.ecb.found_item.text() === val;
+          res = this.ecb.found_item.text() === aval;
         } else if (sel === 'value') {
-          res = this.ecb.found_item.value() === val;
+          res = this.ecb.found_item.value() === aval;
+        } else if (asel === 'object' && aval === 'found') {
+          res = this.ecb.found_item.length !== 0;
+        } else if (asel === 'object count' && aval === 'found') {
+
         } else {
           res = this.ecb.found_item.css(this.A(el)) === val;
         }
-        if ((this.A(cond)) === "isn't") {
+        if (acond === "isn't") {
           res = !res;
         }
         assertion = "check for for " + sel + " with value " + val;
-        if ((this.A(action)) === 'Check') {
+        if (aaction === 'Check') {
           this.assert(res, assertion);
         } else {
           this.fail(res, assertion);
@@ -112,7 +119,7 @@
         return this.done('success');
       }
     ], [
-      /^Go to (.+)/, function(url) {
+      /^Go to (.+)/, /^Перейти на (.+)/, function(url) {
         var new_link, where,
           _this = this;
 
@@ -230,6 +237,9 @@
     'не имеет': "don't have",
     'Проверить': 'Check',
     'Остановиться': 'Fail',
+    'объект': 'object',
+    'существует': 'exist',
+    'найден': 'found',
     'button': 'button',
     'link': 'a',
     "ссылку": 'a',
@@ -252,3 +262,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=lib.map
+*/

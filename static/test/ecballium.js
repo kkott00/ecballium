@@ -4,33 +4,6 @@
 
   window.imports = {};
 
-  window.load = function(src, args) {
-    var d, head, helper, script;
-
-    d = $.Deferred();
-    helper = function() {
-      console.log('helper', src, $.fn.textwidget);
-      imports[src] = true;
-      return d.resolve();
-    };
-    if (src in imports) {
-      helper();
-      return d.promise();
-    }
-    head = document.getElementsByTagName('head')[0];
-    script = document.createElement('script');
-    script.type = 'text/javascript';
-    script.src = src;
-    head.appendChild(script);
-    script.onreadystatechange = function() {
-      if (this.readyState === 'complete') {
-        return helper();
-      }
-    };
-    script.onload = helper;
-    return d.promise();
-  };
-
   window.wait = function(delay) {
     var cb, d,
       _this = this;
@@ -41,8 +14,10 @@
       return d.resolve();
     };
     setTimeout(cb, delay);
-    return d.promise();
+    return d;
   };
+
+  window.ecb_storage = {};
 
   Ecballium = (function() {
     Ecballium.prototype.state = 'init';
@@ -62,6 +37,12 @@
     Ecballium.prototype.root = $(document);
 
     Ecballium.prototype.window = window;
+
+    Ecballium.prototype.storage = window.ecb_storage;
+
+    Ecballium.prototype.WD_DELAY = 30 * 1000;
+
+    Ecballium.prototype.wd = null;
 
     Ecballium.prototype.navigator = "" + navigator.appVersion + " | " + navigator.platform;
 
@@ -164,13 +145,6 @@
           return _this.run_on_target_done(null, e.data);
         }, false);
       }
-      /*
-      load('lib.js').done ()=>
-        load(@hash+'.js').done ()=>
-          @get_file(@hash).done ()=>
-            @next 'step_ready'
-      */
-
       return this.next('step_ready');
     };
 
@@ -286,6 +260,7 @@
         script = document.createElement('script');
         script.type = 'text/javascript';
         script.src = "" + this.URL + "/" + name + ".js";
+        script.charset = 'UTF-8';
         fh[0].appendChild(script);
         return $(script).attr('x-injected', '');
       } catch (_error) {
@@ -369,13 +344,18 @@
     };
 
     Ecballium.prototype.run_step = function() {
-      var step;
+      var step,
+        _this = this;
 
       this.current_step = this.loc2step();
       step = this.current_step.desc;
       console.log('run_step', step, this.file, this.loc.step);
       this.post('pre');
-      return this.W.postMessage(step, "" + this.W.location.protocol + "//" + this.W.location.host);
+      this.W.postMessage(step, "" + this.W.location.protocol + "//" + this.W.location.host);
+      this.wd = wait(this.WD_DELAY);
+      return this.wd.done(function() {
+        return _this.run_on_target_done(null, 'watch_dog');
+      });
     };
 
     Ecballium.prototype.log = function(msg, obj) {
@@ -457,25 +437,29 @@
     };
 
     Ecballium.prototype.run_on_target_done = function(data, status) {
-      var _this = this;
+      var msg,
+        _this = this;
 
       console.log('run_on_target_done', status);
       if (this.child) {
         this.child.run_on_target_done(data, status);
         return;
       }
+      this.wd.reject();
       if (status === 'redirected') {
         this.post('success');
         return wait(this.DELAY / 2).done(function() {
           return _this.next('step_done');
         });
       } else if (status === 'failed') {
-        this.post('failed', this.last_exception.stack);
+        msg = this.storage.last_exception ? this.storage.last_exception.stack : 'Unknown';
+        this.post('failed', msg);
         if (!this.stop_on_any) {
           return this.next('step_done');
         }
       } else if (status === 'error') {
-        this.post('failed', this.last_exception.stack);
+        msg = this.storage.last_exception ? this.storage.last_exception.stack : 'Unknown';
+        this.post('failed', msg);
         this.loc.step = 1e10;
         if (!this.stop_on_any) {
           return this.next('step_done');
@@ -489,10 +473,14 @@
         return wait(this.DELAY / 2).done(function() {
           return _this.next('step_done');
         });
+      } else if (status === "watch_dog") {
+        this.post('failed', 'Watch Dog Timer');
+        if (!this.stop_on_any) {
+          return this.next('step_done');
+        }
       } else {
         this.post('success');
         if (this.after_step_delay) {
-          debugger;
           wait(this.after_step_delay).done(function() {
             return _this.next('step_done');
           });
@@ -516,7 +504,7 @@
 
   $(function() {
     window.ecballium = new Ecballium();
-    return $('button.run_script').on('click', function() {
+    $('button.run_script').on('click', function() {
       console.log($('textarea.editor').val());
       return ecballium.child = new Ecballium({
         'par': ecballium,
@@ -525,6 +513,13 @@
         }
       });
     });
+    return $('button.clean-log').on('click', function() {
+      return $('div.content dl').empty();
+    });
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=ecballium.map
+*/

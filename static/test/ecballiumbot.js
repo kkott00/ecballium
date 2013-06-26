@@ -82,7 +82,7 @@
             throw "Unexpected redirect";
           } catch (_error) {
             e = _error;
-            _this.ecb.last_exception = e;
+            _this.set('last_exception', e);
             _this.done('failed');
             throw e;
           }
@@ -119,19 +119,17 @@
           break;
         }
       }
-      /*    
-      if not m
-        @done('error',"not found step")
-        return
-      */
-
+      if (!m) {
+        this.done('error', "not found step");
+        return;
+      }
       try {
         return i.slice(-1)[0].apply(this, m.slice(1));
       } catch (_error) {
         e = _error;
         console.log('exception', e);
         d = this.mouse.show_message(100, 100, "<pre>" + e.stack + "</pre>", 'rgba(255,0,0,0.5)');
-        this.ecb.last_exception = e;
+        this.set('last_exception', e);
         if (this.ecb.skipScnOnError) {
           return this.done('failed');
         } else {
@@ -234,6 +232,14 @@
       return $.extend(this.aliases, as);
     };
 
+    EcballiumBot.prototype.set = function(name, value) {
+      return this.ecb.storage[name] = value;
+    };
+
+    EcballiumBot.prototype.get = function(name) {
+      return this.ecb.storage[name];
+    };
+
     return EcballiumBot;
 
   })();
@@ -306,8 +312,12 @@
     EcballiumMouse.prototype.movetoobj = function(obj) {
       var toff;
 
-      toff = obj.offset();
-      return this.moveto(toff.left + 50, toff.top + obj.height() / 2);
+      if (obj.length > 0) {
+        toff = obj.offset();
+        return this.moveto(toff.left + 50, toff.top + obj.height() / 2);
+      } else {
+        return this.moveto(100, 100);
+      }
     };
 
     EcballiumMouse.prototype.click = function() {
@@ -436,3 +446,7 @@
   });
 
 }).call(this);
+
+/*
+//@ sourceMappingURL=ecballiumbot.map
+*/
