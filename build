@@ -2,5 +2,5 @@
 #OD=/c/projects/ecballium_gh/static/test/
 OD=~/Sites/ecb/static/test
 cp launcher.html ecballium.html $OD
-coffee -cw -o $OD .
+coffee -cwm -o $OD .
 

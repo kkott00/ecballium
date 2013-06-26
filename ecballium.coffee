@@ -2,36 +2,16 @@
 
 window.imports={}
 
-window.load=(src,args)->
-   d=$.Deferred()
-   helper=()->
-     console.log 'helper',src,$.fn.textwidget
-     imports[src]=true
-     d.resolve()
-   if src of imports
-     helper()
-     return d.promise()
-   head= document.getElementsByTagName('head')[0]
-   script= document.createElement('script')
-   script.type= 'text/javascript'
-   script.src= src
-   head.appendChild(script)
-
-   script.onreadystatechange= () ->
-     if (this.readyState == 'complete') 
-       helper()
-   script.onload= helper
-   d.promise()
-
-window.wait=(delay)->
-  d=$.Deferred()
-  cb=()=>
+window.wait = (delay)->
+  d = $.Deferred()
+  cb = ()=>
     console.log 'wait done',delay
     d.resolve()
   setTimeout cb,delay
-  d.promise()
+  d
 
-
+# static storage
+window.ecb_storage = {};
 
 
 class Ecballium
@@ -45,6 +25,10 @@ class Ecballium
   DELAY_FOR_REPEAT:1000
   root:$(document)
   window:window
+  storage:window.ecb_storage
+
+  WD_DELAY:30*1000;
+  wd:null
 
   #navigator: "#{navigator.appCodeName} #{navigator.appName} #{navigator.appVersion} #{navigator.cookieEnabled} #{navigator.platform} #{navigator.userAgent}";
   navigator: "#{navigator.appVersion} | #{navigator.platform}";
@@ -63,7 +47,7 @@ class Ecballium
     window.dbg_ecbs.push(@)
 
 
-    @URL='/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
+    @URL = '/'+(window.location.pathname.split('/').slice(1,-1)).join('/')
     if not @hash
       @hash = window.location.hash.slice(1);
     if @hash == ''
@@ -131,17 +115,6 @@ class Ecballium
           @run_on_target_done(null,e.data)
         ,false
 
-
-
-    #wait(200)
-    #.done ()=>
-    #  @next 'get_cur_step'
-    ###
-    load('lib.js').done ()=>
-      load(@hash+'.js').done ()=>
-        @get_file(@hash).done ()=>
-          @next 'step_ready'
-    ###
     @next 'step_ready'
  
   get_file: (file)->
@@ -216,8 +189,9 @@ class Ecballium
     try
       fh=@frame.find('head')
       script= document.createElement('script')
-      script.type= 'text/javascript'
-      script.src= "#{@URL}/#{name}.js"
+      script.type = 'text/javascript'
+      script.src = "#{@URL}/#{name}.js"
+      script.charset = 'UTF-8'
       fh[0].appendChild(script)
       $(script).attr('x-injected','')
     catch e
@@ -282,6 +256,12 @@ class Ecballium
     console.log 'run_step',step,@file,@loc.step
     @post('pre')
     @W.postMessage step,"#{@W.location.protocol}//#{@W.location.host}"
+    
+    #set WatchDog
+    @wd = wait(@WD_DELAY);
+    @wd.done ()=>
+       @run_on_target_done null,'watch_dog'
+
 
   log: (msg,obj)->
     @logbuf+="#{new Date()} #{msg}\n"
@@ -344,31 +324,39 @@ class Ecballium
       @child.run_on_target_done(data,status)
       return
     
-    if status=='redirected'
+    #cancel WatchDog
+    @wd.reject()
+    
+    if status == 'redirected'
       @post('success')
       wait(@DELAY/2).done ()=>  #wait until page reloaded
         @next 'step_done'  
-    else if status=='failed'
-      @post('failed',@last_exception.stack)
+    else if status == 'failed'
+      msg = if @storage.last_exception then @storage.last_exception.stack else 'Unknown'
+      @post 'failed', msg
       if not @stop_on_any
         @next 'step_done'
-    else if status=='error'
-      @post('failed',@last_exception.stack)
+    else if status == 'error'
+      msg = if @storage.last_exception then @storage.last_exception.stack else 'Unknown'
+      @post('failed',msg)
       @loc.step = 1e10
       if not @stop_on_any
         @next 'step_done'
-    else if status=='run_feature'
+    else if status == 'run_feature'
       @post('success')
       @run_feature @pending_feature
-    else if status=='load_library'
+    else if status == 'load_library'
       @post('success')
       @inject_script @scripts.slice(-1)[0]
       wait(@DELAY/2).done ()=>
         @next 'step_done'
+    else if status == "watch_dog"
+      @post('failed','Watch Dog Timer')
+      if not @stop_on_any
+        @next 'step_done'
     else
       @post('success')
       if @after_step_delay
-        debugger;
         wait(@after_step_delay).done ()=>
           @next 'step_done'
         @after_step_delay = null
@@ -388,4 +376,6 @@ $ ->
       'par':ecballium
       'console':
         'text':$('textarea.editor').val()
+  $('button.clean-log').on 'click',()->
+    $('div.content dl').empty()
 

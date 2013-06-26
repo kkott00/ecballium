@@ -1,6 +1,6 @@
 ecballiumbot.register_handlers [
  [/^Find (.+) with (.*)/,
-  /^Найти (.+) c (.*)/,
+  /^Найти (.+) c текстом (.*)/,
   /^Find (.+)/,
   (type,par)->
     type=@A type
@@ -12,7 +12,7 @@ ecballiumbot.register_handlers [
       @ecb.found_item = @ecb.found_item.filter(":contains(#{par})")
     console.log 'sel',@ecb.found_item
 
-    @assert @ecb.found_item.length,'Not found item'
+    #@assert @ecb.found_item.length,'Not found item'
 
     @mouse.movetoobj @ecb.found_item
     @done()
@@ -57,30 +57,38 @@ ecballiumbot.register_handlers [
  ]
 
  [/^(Check|Stop) if (.+) (are|is|aren\'t|isn\'t) (.+)/,
-  /^(Проверить|Остановиться) если (.+) (-|не) (.+)/,
+  /^(Остановиться) если (.+) (-|не) (.+)/,
+  /^(Проверить), что (.+) (-|не) (.+)/,
   (action,sel,cond,val)->
-   if sel=='text'
-     res = (@ecb.found_item.text()==val)
-   else if sel=='value'
-     res = (@ecb.found_item.value()==val)
-   else
-     res = (@ecb.found_item.css(@A el)==val)
-   if (@A cond)=="isn't"
-     res = not res
-   assertion = "check for for #{sel} with value #{val}"
-   if (@A action)=='Check'
-     @assert(res,assertion)
-   else
-     @fail(res,assertion)
-   @mouse.movetoobj f.first()
+    asel = @A sel
+    aval = @A val
+    aaction = @A action
+    acond = @A cond
+    if sel=='text'
+      res = (@ecb.found_item.text() == aval)
+    else if sel=='value'
+      res = (@ecb.found_item.value() == aval)
+    else if asel=='object' and aval =='found'
+      res = (@ecb.found_item.length != 0)
+    else if asel=='object count' and aval =='found'
+    else
+      res = (@ecb.found_item.css(@A el)==val)
+    if acond == "isn't"
+      res = not res
+    assertion = "check for for #{sel} with value #{val}"
+    if aaction == 'Check'
+      @assert(res,assertion)
+    else
+      @fail(res,assertion)
+    @mouse.movetoobj f.first()
  ]
 
-[ /^Switch to frame (.+)/,
+ [ /^Switch to frame (.+)/,
     (num)->
       @console.log 'sframe',num
       @root=@window.frames[num].document
       @done('success')
- ],
+ ]
 
 
  [ /^Switch to (.*)/,
@@ -114,6 +122,7 @@ ecballiumbot.register_handlers [
  ]
 
  [ /^Go to (.+)/,
+   /^Перейти на (.+)/,
    (url) ->
      @console.log 'gotoh',url
      where = @A url
@@ -206,6 +215,9 @@ ecballiumbot.register_aliases
   'не имеет':"don't have"
   'Проверить':'Check'
   'Остановиться':'Fail'
+  'объект':'object'
+  'существует':'exist'
+  'найден':'found'
 
   'button': 'button'
   'link': 'a'
